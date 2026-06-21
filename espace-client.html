@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Espace Client — ARCHI_BUILDERS</title>
+  <link rel="icon" href="assets/images/logo-color.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="sidebar-backdrop" id="backdrop"></div>
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__brand">
+        <img src="assets/images/logo-white.png" alt="ARCHI_BUILDERS" />
+      </div>
+      <div class="sidebar__role">Espace Client</div>
+      <nav class="snav" id="snav">
+        <a data-view="dash" class="active"><span class="ic">▦</span> Tableau de bord</a>
+        <a data-view="new"><span class="ic">＋</span> Nouvelle conception</a>
+        <a data-view="requests"><span class="ic">🗂</span> Mes demandes</a>
+        <a data-view="contact"><span class="ic">☎</span> Contacter l'architecte</a>
+        <a href="index.html"><span class="ic">↩</span> Voir le site</a>
+      </nav>
+      <div class="sidebar__foot">
+        <button class="btn btn--ghost btn--block" id="logoutBtn" style="border-color:rgba(255,255,255,.25)">Se déconnecter</button>
+      </div>
+    </aside>
+
+    <!-- ===== Main ===== -->
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px">
+          <button class="burger-app" id="burgerApp"><span></span><span></span><span></span></button>
+          <h1 id="pageTitle">Tableau de bord</h1>
+        </div>
+        <div class="who">
+          <div class="meta" style="text-align:right">
+            <b id="whoName">Client</b>
+            <span>Client</span>
+          </div>
+          <div class="avatar" id="whoAvatar">C</div>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ========== VUE : TABLEAU DE BORD ========== -->
+        <section data-view="dash">
+          <div class="kpis">
+            <div class="kpi"><div class="ic">🗂</div><b id="kTotal">0</b><span>Demandes envoyées</span></div>
+            <div class="kpi"><div class="ic">⏳</div><b id="kProgress">0</b><span>En cours</span></div>
+            <div class="kpi"><div class="ic">✓</div><b id="kDone">0</b><span>Terminées</span></div>
+            <div class="kpi"><div class="ic">💰</div><b id="kAmount">0</b><span>Montant estimé cumulé</span></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel__head">
+              <div><h2>Bienvenue 👋</h2><p>Lancez une nouvelle conception ou suivez vos demandes en cours.</p></div>
+              <button class="btn btn--gold" data-goto="new">＋ Nouvelle conception</button>
+            </div>
+            <div id="dashRecent"></div>
+          </div>
+        </section>
+
+        <!-- ========== VUE : NOUVELLE CONCEPTION ========== -->
+        <section data-view="new" class="hidden">
+          <div class="calc-layout">
+            <!-- Formulaire -->
+            <div class="panel" style="margin:0">
+              <div class="panel__head"><div><h2>Demande de conception</h2><p>Renseignez votre projet, déposez vos plans et obtenez une estimation immédiate.</p></div></div>
+
+              <form id="conceptForm">
+
+                <!-- PARTIE 1 : Nature & type -->
+                <h4 class="form-step"><span class="n">1</span> Nature &amp; type du projet</h4>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="nature">Nature du projet</label>
+                    <select class="select" id="nature" data-other="natureOther">
+                      <option>Nouvelle construction</option>
+                      <option>Rénovation</option>
+                      <option>Extension / Surélévation</option>
+                      <option>Réaménagement intérieur</option>
+                      <option value="Autre">Autre…</option>
+                    </select>
+                    <input class="input hidden" id="natureOther" placeholder="Précisez la nature du projet" style="margin-top:8px" />
+                  </div>
+                  <div class="field">
+                    <label for="usage">Usage prévu</label>
+                    <select class="select" id="usage">
+                      <option>Habitation principale</option>
+                      <option>Résidence secondaire</option>
+                      <option>Logement locatif</option>
+                      <option>Usage professionnel</option>
+                      <option>Usage mixte (habitation + commerce)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="btype">Type de bâtiment</label>
+                    <select class="select" id="btype" data-other="btypeOther">
+                      <option>Villa</option>
+                      <option>Duplex</option>
+                      <option>Concession</option>
+                      <option>Bâtiment administratif</option>
+                      <option>Hôtel</option>
+                      <option>Immeuble (R+1 à R+10)</option>
+                      <option>Bâtiment commercial</option>
+                      <option>Bureau / Entreprise</option>
+                      <option value="Autre">Autre…</option>
+                    </select>
+                    <input class="input hidden" id="btypeOther" placeholder="Précisez le type de bâtiment" style="margin-top:8px" />
+                  </div>
+                  <div class="field">
+                    <label for="style">Style de conception</label>
+                    <select class="select" id="style" data-other="styleOther">
+                      <option>Contemporain</option>
+                      <option>Moderne</option>
+                      <option>Afro-brésilien</option>
+                      <option>Traditionnel</option>
+                      <option>Minimaliste</option>
+                      <option>Classique</option>
+                      <option value="Autre">Autre…</option>
+                    </select>
+                    <input class="input hidden" id="styleOther" placeholder="Précisez le style souhaité" style="margin-top:8px" />
+                  </div>
+                </div>
+                <div class="field" style="max-width:50%">
+                  <label for="levels">Nombre de niveaux</label>
+                  <select class="select" id="levels">
+                    <option value="1">Plain-pied — R (1 niveau)</option>
+                    <option value="2">R+1 (2 niveaux)</option>
+                    <option value="3">R+2 (3 niveaux)</option>
+                    <option value="4">R+3 (4 niveaux)</option>
+                    <option value="6">R+5 et plus</option>
+                  </select>
+                </div>
+
+                <!-- PARTIE 2 : Le terrain -->
+                <h4 class="form-step"><span class="n">2</span> Le terrain</h4>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="terrain">Surface du terrain (m²) <span class="hint">obligatoire</span></label>
+                    <input class="input" type="number" id="terrain" min="0" placeholder="Ex. 500" required />
+                  </div>
+                  <div class="field">
+                    <label for="location">Localisation (quartier / ville)</label>
+                    <input class="input" id="location" placeholder="Ex. Agoè, Lomé" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Emprise au sol souhaitée</label>
+                  <div class="pct-grid" id="pctGrid">
+                    <button type="button" class="pct" data-v="20">20%</button>
+                    <button type="button" class="pct" data-v="30">30%</button>
+                    <button type="button" class="pct" data-v="40">40%</button>
+                    <button type="button" class="pct" data-v="50">50%</button>
+                    <button type="button" class="pct active" data-v="60">60%</button>
+                    <button type="button" class="pct" data-v="70">70%</button>
+                    <button type="button" class="pct" data-v="80">80%</button>
+                    <button type="button" class="pct" data-v="90">90%</button>
+                    <button type="button" class="pct" data-v="100">100%</button>
+                  </div>
+                  <span class="hint">Part de la surface du terrain à construire (sert au calcul du montant).</span>
+                </div>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="topography">Topographie du terrain</label>
+                    <select class="select" id="topography">
+                      <option>Plat</option>
+                      <option>Légère pente</option>
+                      <option>Terrain en pente</option>
+                      <option>Accidenté</option>
+                      <option>Je ne sais pas</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="orientation">Orientation principale (façade)</label>
+                    <select class="select" id="orientation">
+                      <option>À conseiller par l'architecte</option>
+                      <option>Nord</option>
+                      <option>Sud</option>
+                      <option>Est</option>
+                      <option>Ouest</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- PARTIE 3 : Programme (nombre de locaux) -->
+                <h4 class="form-step"><span class="n">3</span> Le programme (nombre de locaux)</h4>
+                <div class="grid-3">
+                  <div class="field"><label for="rooms">Chambres</label><input class="input" type="number" id="rooms" min="0" value="3" /></div>
+                  <div class="field"><label for="bathrooms">Salles de bain / douches</label><input class="input" type="number" id="bathrooms" min="0" value="2" /></div>
+                  <div class="field"><label for="livings">Salons / séjours</label><input class="input" type="number" id="livings" min="0" value="1" /></div>
+                  <div class="field"><label for="diningrooms">Salles à manger</label><input class="input" type="number" id="diningrooms" min="0" value="1" /></div>
+                  <div class="field"><label for="kitchens">Cuisines</label><input class="input" type="number" id="kitchens" min="0" value="1" /></div>
+                  <div class="field"><label for="offices">Bureaux</label><input class="input" type="number" id="offices" min="0" value="0" /></div>
+                  <div class="field"><label for="dressings">Dressings</label><input class="input" type="number" id="dressings" min="0" value="0" /></div>
+                  <div class="field"><label for="parking">Garage / parkings</label><input class="input" type="number" id="parking" min="0" value="1" /></div>
+                  <div class="field"><label for="storerooms">Magasins / réserves</label><input class="input" type="number" id="storerooms" min="0" value="0" /></div>
+                </div>
+                <div class="field">
+                  <label>Équipements &amp; espaces souhaités</label>
+                  <div class="checks" id="extras">
+                    <label><input type="checkbox" value="Piscine" /> Piscine</label>
+                    <label><input type="checkbox" value="Terrasse" /> Terrasse</label>
+                    <label><input type="checkbox" value="Balcon" /> Balcon</label>
+                    <label><input type="checkbox" value="Jardin" /> Jardin</label>
+                    <label><input type="checkbox" value="Guérite" /> Guérite</label>
+                    <label><input type="checkbox" value="Boutique / Local commercial" /> Boutique</label>
+                    <label><input type="checkbox" value="Salle de réunion" /> Salle de réunion</label>
+                    <label><input type="checkbox" value="Buanderie" /> Buanderie</label>
+                    <label><input type="checkbox" value="Ascenseur" /> Ascenseur</label>
+                    <label><input type="checkbox" value="Panneaux solaires" /> Panneaux solaires</label>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="otherRooms">Autres locaux / besoins spécifiques</label>
+                  <input class="input" id="otherRooms" placeholder="Ex. bibliothèque, salle de sport, studio indépendant…" />
+                </div>
+
+                <!-- PARTIE 4 : Plans à joindre -->
+                <h4 class="form-step"><span class="n">4</span> Plans à joindre</h4>
+                <div class="grid-2">
+                  <label class="filedrop">
+                    <span>📐 Plan parcellaire du terrain <span class="req-star">*</span></span>
+                    <input type="file" id="filePlanTerrain" accept="image/*,.pdf" />
+                    <span class="fname" id="nameTerrain">Aucun fichier</span>
+                  </label>
+                  <label class="filedrop">
+                    <span>🏗️ Plan / esquisse ou photo d'inspiration <span class="hint">(facultatif)</span></span>
+                    <input type="file" id="filePlanBuilding" accept="image/*,.pdf" />
+                    <span class="fname" id="nameBuilding">Aucun fichier</span>
+                  </label>
+                </div>
+                <span class="hint">* Le plan parcellaire (plan du terrain) est nécessaire pour démarrer la conception.</span>
+
+                <!-- PARTIE 5 : Budget, délai & précisions -->
+                <h4 class="form-step"><span class="n">5</span> Budget, délai &amp; précisions</h4>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="budget">Budget global estimé (facultatif)</label>
+                    <select class="select" id="budget">
+                      <option value="">Je ne sais pas encore</option>
+                      <option>Moins de 10 M FCFA</option>
+                      <option>10 – 25 M FCFA</option>
+                      <option>25 – 50 M FCFA</option>
+                      <option>50 – 100 M FCFA</option>
+                      <option>Plus de 100 M FCFA</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="deadline">Délai souhaité de démarrage</label>
+                    <select class="select" id="deadline">
+                      <option>Dès que possible</option>
+                      <option>Dans 1 à 3 mois</option>
+                      <option>Dans 3 à 6 mois</option>
+                      <option>Dans plus de 6 mois</option>
+                      <option>Simple estimation pour le moment</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="notes">Précisions sur votre projet</label>
+                  <textarea class="textarea" id="notes" placeholder="Décrivez vos besoins, vos contraintes, vos inspirations…"></textarea>
+                </div>
+
+                <div class="alert alert--ok" id="formOk"></div>
+                <div class="alert alert--err" id="formErr"></div>
+
+                <button type="submit" class="btn btn--gold btn--block">Envoyer ma demande de conception</button>
+              </form>
+            </div>
+
+            <!-- Résumé / Estimation -->
+            <aside class="calc-summary">
+              <h3>Estimation en direct</h3>
+              <div class="line"><span>Surface du terrain</span><b id="sTerrain">— m²</b></div>
+              <div class="line"><span>Emprise au sol</span><b id="sPct">60 %</b></div>
+              <div class="line"><span>Surface à concevoir</span><b id="sBuilt">— m²</b></div>
+              <div class="line"><span>Prix au m²</span><b id="sRate">1 500 FCFA</b></div>
+              <div class="total">
+                <small>MONTANT DE LA CONCEPTION</small>
+                <div class="amount" id="sAmount">0 FCFA</div>
+              </div>
+              <p class="note">Estimation calculée sur la base de 1&nbsp;500&nbsp;FCFA/m² de surface construite. Le montant définitif est confirmé après étude par nos architectes.</p>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ========== VUE : MES DEMANDES ========== -->
+        <section data-view="requests" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Mes demandes</h2><p>Suivez l'avancement de vos projets de conception.</p></div>
+              <button class="btn btn--gold btn--sm" data-goto="new">＋ Nouvelle demande</button>
+            </div>
+            <div class="table-wrap" id="reqTableWrap"></div>
+          </div>
+        </section>
+
+        <!-- ========== VUE : CONTACT ========== -->
+        <section data-view="contact" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Contacter nos concepteurs</h2><p>Un projet en tête ? Nos architectes sont à votre écoute.</p></div></div>
+            <div class="contact-cards" id="contactCards"></div>
+            <div style="margin-top:22px;padding:20px;background:var(--bg-soft);border-radius:var(--radius-sm)">
+              <b>📍 Bureau :</b> Lomé, Togo &nbsp;·&nbsp; <b>✉️</b> archi-builders@gmail.com<br />
+              <span class="tbl muted">Astuce : vous pouvez aussi lancer une demande de conception, nos équipes vous rappellent.</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modale détail demande ===== -->
+  <div class="modal" id="modal">
+    <div class="modal__box">
+      <div class="modal__head"><h3 id="mTitle">Détail de la demande</h3><button class="modal__close" id="mClose">&times;</button></div>
+      <div class="modal__body" id="mBody"></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app-shell.js"></script>
+  <script src="js/client.js"></script>
+</body>
+</html>

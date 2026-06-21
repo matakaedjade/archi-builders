@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARCHI_BUILDERS — Architecture &amp; BTP | Conception sur mesure</title>
+  <meta name="description" content="ARCHI_BUILDERS — Cabinet d'architecture et BTP. Conception de villas, immeubles et espaces sur mesure. Estimez le coût de votre projet en ligne." />
+  <link rel="icon" href="assets/images/logo-color.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="nav" id="nav">
+    <a href="index.html" class="nav__brand">
+      <img src="assets/images/logo-white.png" alt="ARCHI_BUILDERS" id="navLogo" />
+    </a>
+    <nav class="nav__links" id="navLinks">
+      <a href="#accueil">Accueil</a>
+      <a href="#services">Services</a>
+      <a href="#projets">Projets</a>
+      <a href="#processus">Processus</a>
+      <a href="#estimation">Estimation</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="nav__cta">
+      <a href="portail.html" class="btn btn--gold btn--sm">Espace client &amp; portail</a>
+      <button class="nav__burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="accueil">
+    <div class="hero__slides">
+      <div class="hero__slide" style="background-image:url('assets/images/render-villa.jpg')"></div>
+      <div class="hero__slide" style="background-image:url('assets/images/render-tower.jpg')"></div>
+      <div class="hero__slide" style="background-image:url('assets/images/render-house.jpg')"></div>
+    </div>
+    <div class="container hero__inner">
+      <span class="hero__badge"><span class="dot"></span> Architecture &bull; BTP &bull; Conception</span>
+      <h1>Nous concevons des espaces<br /><span class="accent">qui inspirent et durent.</span></h1>
+      <p class="hero__sub">ARCHI_BUILDERS imagine, conçoit et construit votre villa, votre immeuble ou votre projet d'entreprise — avec rigueur technique et élégance architecturale.</p>
+      <div class="hero__actions">
+        <a href="portail.html" class="btn btn--gold">Démarrer mon projet</a>
+        <a href="#projets" class="btn btn--ghost">Voir nos réalisations</a>
+      </div>
+    </div>
+    <div class="hero__scroll">
+      <div class="mouse"></div>
+      <span>Défiler</span>
+    </div>
+  </section>
+
+  <!-- ===================== STATS ===================== -->
+  <div class="container stats">
+    <div class="stats__grid reveal">
+      <div class="stat"><div class="stat__num"><span data-count="120">0</span>+</div><div class="stat__label">Projets livrés</div></div>
+      <div class="stat"><div class="stat__num"><span data-count="95">0</span><span class="text-gold">%</span></div><div class="stat__label">Clients satisfaits</div></div>
+      <div class="stat"><div class="stat__num"><span data-count="12">0</span></div><div class="stat__label">Années d'expérience</div></div>
+      <div class="stat"><div class="stat__num"><span data-count="35">0</span></div><div class="stat__label">Experts &amp; partenaires</div></div>
+    </div>
+  </div>
+
+  <!-- ===================== SERVICES ===================== -->
+  <section class="section" id="services">
+    <div class="container">
+      <div class="head-center reveal">
+        <span class="eyebrow">Nos expertises</span>
+        <h2 class="section-title">Un accompagnement de A à Z</h2>
+        <p class="section-lead">De la première esquisse à la remise des clés, nos architectes et ingénieurs BTP couvrent l'ensemble de votre projet.</p>
+      </div>
+      <div class="services-grid">
+        <article class="scard reveal" data-d="1">
+          <div class="scard__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+          </div>
+          <h3>Conception architecturale</h3>
+          <p>Plans, esquisses et projets sur mesure pour villas, maisons et logements collectifs, pensés pour votre terrain et votre mode de vie.</p>
+        </article>
+        <article class="scard reveal" data-d="2">
+          <div class="scard__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <h3>Études techniques &amp; BTP</h3>
+          <p>Études de structure, béton armé, métré et suivi de chantier conformes aux normes pour bâtir solide et durable.</p>
+        </article>
+        <article class="scard reveal" data-d="3">
+          <div class="scard__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 0 18M3 12h18"/></svg>
+          </div>
+          <h3>Rendus 3D &amp; visites virtuelles</h3>
+          <p>Visualisez votre futur bâtiment avant la construction grâce à des rendus photoréalistes et des images de synthèse.</p>
+        </article>
+        <article class="scard reveal" data-d="1">
+          <div class="scard__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+          </div>
+          <h3>Aménagement intérieur</h3>
+          <p>Design d'intérieur, choix des matériaux et décoration pour des espaces fonctionnels, lumineux et raffinés.</p>
+        </article>
+        <article class="scard reveal" data-d="2">
+          <div class="scard__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V5a2 2 0 0 1 2-2h11l5 5v13M16 3v5h5"/></svg>
+          </div>
+          <h3>Permis &amp; documents</h3>
+          <p>Constitution des dossiers de permis de construire et accompagnement administratif jusqu'à l'obtention des autorisations.</p>
+        </article>
+        <article class="scard reveal" data-d="3">
+          <div class="scard__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M5 9l7-7 7 7M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9"/></svg>
+          </div>
+          <h3>Devis &amp; estimation</h3>
+          <p>Estimation transparente du coût de conception en ligne, calculée selon la surface et l'emprise au sol de votre projet.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROJETS RÉALISÉS ===================== -->
+  <section class="section section--soft" id="projets">
+    <div class="container">
+      <div class="head-center reveal">
+        <span class="eyebrow">Nos projets</span>
+        <h2 class="section-title">Projets réalisés</h2>
+        <p class="section-lead">Villas, duplex modernes, immeubles et aménagements intérieurs. Un aperçu de notre savoir-faire, de l'esquisse à la livraison.</p>
+      </div>
+
+      <div class="proj-filters reveal" id="projFilters">
+        <button class="chip active" data-f="all">Tous</button>
+        <button class="chip" data-f="villas">Villas &amp; Duplex</button>
+        <button class="chip" data-f="immeubles">Immeubles</button>
+        <button class="chip" data-f="interieurs">Intérieurs</button>
+      </div>
+
+      <div class="proj-grid" id="projGrid">
+        <article class="pcard reveal" data-cat="villas" data-img="assets/images/render-villa.jpg">
+          <div class="pcard__img"><img src="assets/images/render-villa.jpg" alt="Villa contemporaine" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Villas &amp; Duplex</span><h3>Villa contemporaine</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="villas" data-img="assets/images/ext-villa-dusk.jpg">
+          <div class="pcard__img"><img src="assets/images/ext-villa-dusk.jpg" alt="Villa d'architecte" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Villas &amp; Duplex</span><h3>Villa d'architecte</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="villas" data-img="assets/images/ext-villa-pool.jpg">
+          <div class="pcard__img"><img src="assets/images/ext-villa-pool.jpg" alt="Villa avec piscine" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Villas &amp; Duplex</span><h3>Villa avec piscine</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="villas" data-img="assets/images/ext-villa-terrace.jpg">
+          <div class="pcard__img"><img src="assets/images/ext-villa-terrace.jpg" alt="Duplex moderne" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Villas &amp; Duplex</span><h3>Duplex moderne</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="villas" data-img="assets/images/ext-villa-white.jpg">
+          <div class="pcard__img"><img src="assets/images/ext-villa-white.jpg" alt="Villa minimaliste" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Villas &amp; Duplex</span><h3>Villa minimaliste</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="villas" data-img="assets/images/render-house.jpg">
+          <div class="pcard__img"><img src="assets/images/render-house.jpg" alt="Maison familiale moderne" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Villas &amp; Duplex</span><h3>Maison familiale moderne</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="immeubles" data-img="assets/images/render-tower.jpg">
+          <div class="pcard__img"><img src="assets/images/render-tower.jpg" alt="Immeuble R+6" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Immeubles</span><h3>Immeuble R+6 mixte</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="interieurs" data-img="assets/images/render-interior.jpg">
+          <div class="pcard__img"><img src="assets/images/render-interior.jpg" alt="Hall et réception" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Intérieurs</span><h3>Hall &amp; réception</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="interieurs" data-img="assets/images/int-living-garden.jpg">
+          <div class="pcard__img"><img src="assets/images/int-living-garden.jpg" alt="Séjour ouvert sur jardin" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Intérieurs</span><h3>Séjour ouvert sur jardin</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="interieurs" data-img="assets/images/int-living-stair.jpg">
+          <div class="pcard__img"><img src="assets/images/int-living-stair.jpg" alt="Séjour et mezzanine" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Intérieurs</span><h3>Séjour &amp; mezzanine</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="interieurs" data-img="assets/images/int-living-warm.jpg">
+          <div class="pcard__img"><img src="assets/images/int-living-warm.jpg" alt="Salon design" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Intérieurs</span><h3>Salon design chaleureux</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+        <article class="pcard reveal" data-cat="interieurs" data-img="assets/images/int-living-glass.jpg">
+          <div class="pcard__img"><img src="assets/images/int-living-glass.jpg" alt="Salon baie vitrée" loading="lazy" /><span class="pcard__zoom">＋</span></div>
+          <div class="pcard__body"><span class="pcard__cat">Intérieurs</span><h3>Salon baie vitrée</h3><p>📍 Lomé, Togo</p></div>
+        </article>
+      </div>
+
+      <div class="center" style="margin-top:38px">
+        <a href="portail.html" class="btn btn--gold">Lancer un projet comme celui-ci</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== À PROPOS ===================== -->
+  <section class="section">
+    <div class="container about">
+      <div class="about__media reveal">
+        <img src="assets/images/render-interior.jpg" alt="Intérieur conçu par ARCHI_BUILDERS" loading="lazy" />
+        <div class="about__badge"><b>1500</b>FCFA / m² de conception</div>
+      </div>
+      <div class="about__text reveal" data-d="1">
+        <span class="eyebrow">Qui sommes-nous</span>
+        <h2 class="section-title">L'alliance du design et de la rigueur technique</h2>
+        <p class="section-lead">ARCHI_BUILDERS réunit architectes, ingénieurs et conducteurs de travaux autour d'une même exigence : transformer vos idées en bâtiments solides, esthétiques et adaptés à votre budget.</p>
+        <ul class="feature-list">
+          <li><span class="ic">✓</span><div><b>Approche personnalisée</b> — chaque projet est étudié selon votre terrain, vos besoins et votre style.</div></li>
+          <li><span class="ic">✓</span><div><b>Transparence des coûts</b> — estimez le montant de votre conception en quelques clics.</div></li>
+          <li><span class="ic">✓</span><div><b>Suivi de bout en bout</b> — un interlocuteur dédié de l'esquisse à la livraison.</div></li>
+        </ul>
+        <div style="margin-top:26px">
+          <a href="#estimation" class="btn btn--gold">Estimer mon projet</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROCESSUS ===================== -->
+  <section class="section section--dark" id="processus">
+    <div class="container">
+      <div class="head-center reveal">
+        <span class="eyebrow">Notre méthode</span>
+        <h2 class="section-title">4 étapes vers votre projet</h2>
+        <p class="section-lead">Un parcours simple et transparent, du premier contact à la conception finale.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal" data-d="1"><h4>Brief &amp; terrain</h4><p>Vous déposez votre plan de terrain et exprimez vos besoins via votre espace client.</p></div>
+        <div class="step reveal" data-d="2"><h4>Estimation</h4><p>Le montant de la conception est calculé automatiquement selon la surface et l'emprise.</p></div>
+        <div class="step reveal" data-d="3"><h4>Conception</h4><p>Nos architectes élaborent les plans, esquisses et rendus 3D de votre futur bâtiment.</p></div>
+        <div class="step reveal" data-d="3"><h4>Réalisation</h4><p>Études techniques, permis et suivi de chantier jusqu'à la remise des clés.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ESTIMATION (mini-calculateur) ===================== -->
+  <section class="section cta-band" id="estimation">
+    <div class="container cta-band__inner">
+      <div class="reveal">
+        <span class="eyebrow" style="color:var(--gold-400)">Estimation en ligne</span>
+        <h2>Combien coûte la conception de votre projet&nbsp;?</h2>
+        <p>Indiquez la surface de votre terrain et la part que vous souhaitez construire. Le montant de la conception se calcule instantanément, sur la base de <b>1&nbsp;500&nbsp;FCFA le m²</b>. Pour déposer vos plans et finaliser, créez votre espace client.</p>
+        <a href="portail.html" class="btn btn--gold">Accéder à l'espace client</a>
+      </div>
+      <div class="mini-calc reveal" data-d="1">
+        <h3>Estimateur rapide</h3>
+        <p class="muted">Une première idée du budget de conception.</p>
+        <div class="field">
+          <label for="mTerrain">Surface du terrain (m²)</label>
+          <input class="input" type="number" id="mTerrain" min="0" placeholder="Ex. 500" value="500" />
+        </div>
+        <div class="field">
+          <label for="mPct">Part du terrain à construire (emprise au sol)</label>
+          <select class="select" id="mPct">
+            <option value="20">20 %</option>
+            <option value="30">30 %</option>
+            <option value="40">40 %</option>
+            <option value="50">50 %</option>
+            <option value="60" selected>60 %</option>
+            <option value="70">70 %</option>
+            <option value="80">80 %</option>
+            <option value="90">90 %</option>
+            <option value="100">100 % (toute la surface)</option>
+          </select>
+        </div>
+        <div class="result">
+          <small>Surface à concevoir : <b id="mBuilt">300 m²</b></small>
+          <div class="amount" id="mAmount">450 000 FCFA</div>
+          <small>Estimation indicative de conception</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER / CONTACT ===================== -->
+  <footer class="footer" id="contact">
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <img src="assets/images/logo-white.png" alt="ARCHI_BUILDERS" />
+        <p>Cabinet d'architecture et de BTP. Nous concevons et construisons des espaces qui inspirent et durent.</p>
+      </div>
+      <div>
+        <h5>Navigation</h5>
+        <a href="#services">Services</a>
+        <a href="#projets">Projets</a>
+        <a href="#processus">Processus</a>
+        <a href="#estimation">Estimation</a>
+      </div>
+      <div>
+        <h5>Espaces</h5>
+        <a href="portail.html">Espace client</a>
+        <a href="portail.html">Espace employé</a>
+        <a href="portail.html">Administration</a>
+      </div>
+      <div>
+        <h5>Nous contacter</h5>
+        <div class="contact-line"><span class="ic">📞</span><div><a href="tel:+22891089294"><b>+228 91 08 92 94</b></a><br /><span style="color:#9fb6a8;font-size:.82rem">Conception &amp; projets</span></div></div>
+        <div class="contact-line"><span class="ic">📞</span><div><a href="tel:+22892696185"><b>+228 92 69 61 85</b></a><br /><span style="color:#9fb6a8;font-size:.82rem">Suivi de chantier</span></div></div>
+        <div class="contact-line"><span class="ic">✉️</span><div><a href="mailto:archi-builders@gmail.com">archi-builders@gmail.com</a></div></div>
+        <div class="contact-line"><span class="ic">📍</span><div>Lomé, Togo</div></div>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <span>© <span id="year"></span> ARCHI_BUILDERS — Architecture &bull; BTP. Tous droits réservés.</span>
+      <div class="socials">
+        <a href="#" aria-label="Facebook">f</a>
+        <a href="#" aria-label="Instagram">◉</a>
+        <a href="#" aria-label="LinkedIn">in</a>
+        <a href="#" aria-label="WhatsApp">✆</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== LIGHTBOX ===================== -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox__close" id="lbClose">&times;</button>
+    <img src="" alt="Aperçu" id="lbImg" />
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

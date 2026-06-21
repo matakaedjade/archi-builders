@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portail — ARCHI_BUILDERS</title>
+  <link rel="icon" href="assets/images/logo-color.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="auth-page">
+
+    <!-- Visuel -->
+    <aside class="auth-visual">
+      <a href="index.html" class="back-home">← Retour au site</a>
+      <div>
+        <h2>Bienvenue sur votre portail ARCHI_BUILDERS</h2>
+        <p>Un seul portail, trois espaces sécurisés pour piloter vos projets de A à Z.</p>
+        <ul class="vlist">
+          <li><span class="ic">🏛️</span> <b>Administration</b> — pilotage global &amp; comptes</li>
+          <li><span class="ic">👷</span> <b>Employés</b> — suivi des demandes &amp; conception</li>
+          <li><span class="ic">🏠</span> <b>Clients</b> — dépôt de plans &amp; estimation</li>
+        </ul>
+      </div>
+      <p style="font-size:.82rem;color:#bcd0c4">© <span class="yr"></span> ARCHI_BUILDERS — Architecture &bull; BTP</p>
+    </aside>
+
+    <!-- Panneau de connexion -->
+    <main class="auth-panel">
+      <div class="auth-card">
+        <img src="assets/images/logo-color.png" alt="ARCHI_BUILDERS" class="logo" />
+
+        <!-- Choix de l'espace -->
+        <div class="role-tabs" id="roleTabs">
+          <button class="role-tab active" data-role="client">🏠 Client</button>
+          <button class="role-tab" data-role="employe">👷 Employé</button>
+          <button class="role-tab" data-role="admin">🏛️ Admin</button>
+        </div>
+
+        <h1 id="formTitle">Espace Client</h1>
+        <p class="sub" id="formSub">Connectez-vous pour déposer vos plans et estimer votre projet.</p>
+
+        <div class="alert alert--err" id="alertErr"></div>
+        <div class="alert alert--ok" id="alertOk"></div>
+
+        <!-- Connexion -->
+        <form id="loginForm">
+          <div class="field">
+            <label for="email">Adresse e-mail</label>
+            <input class="input" type="email" id="email" placeholder="vous@exemple.com" required />
+          </div>
+          <div class="field">
+            <label for="password">Mot de passe</label>
+            <input class="input" type="password" id="password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn--gold btn--block">Se connecter</button>
+        </form>
+
+        <!-- Inscription (clients uniquement) -->
+        <form id="registerForm" class="hidden">
+          <div class="field">
+            <label for="rName">Nom complet</label>
+            <input class="input" type="text" id="rName" placeholder="Votre nom" required />
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="rEmail">E-mail</label>
+              <input class="input" type="email" id="rEmail" placeholder="vous@exemple.com" required />
+            </div>
+            <div class="field">
+              <label for="rPhone">Téléphone</label>
+              <input class="input" type="tel" id="rPhone" placeholder="+228 ..." />
+            </div>
+          </div>
+          <div class="field">
+            <label for="rPass">Mot de passe</label>
+            <input class="input" type="password" id="rPass" placeholder="Choisissez un mot de passe" required minlength="4" />
+          </div>
+          <button type="submit" class="btn btn--green btn--block" style="background:var(--green-700);color:#fff">Créer mon compte client</button>
+        </form>
+
+        <p class="auth-toggle" id="toggleWrap">
+          Pas encore de compte&nbsp;? <button id="toggleBtn" type="button">Créer un espace client</button>
+        </p>
+
+        <div class="demo-hint" id="demoHint">
+          <b>Comptes de démonstration :</b><br />
+          🏠 Client — <b>client@demo.com</b> / client123<br />
+          👷 Employé — <b>architecte@archibuilders.com</b> / archi123<br />
+          🏛️ Admin — <b>admin@archibuilders.com</b> / admin123
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/portail.js"></script>
+</body>
+</html>

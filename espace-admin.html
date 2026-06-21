@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administration — ARCHI_BUILDERS</title>
+  <link rel="icon" href="assets/images/logo-color.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="sidebar-backdrop" id="backdrop"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__brand"><img src="assets/images/logo-white.png" alt="ARCHI_BUILDERS" /></div>
+      <div class="sidebar__role">Administration</div>
+      <nav class="snav" id="snav">
+        <a data-view="dash" class="active"><span class="ic">▦</span> Tableau de bord</a>
+        <a data-view="requests"><span class="ic">🗂</span> Demandes</a>
+        <a data-view="employees"><span class="ic">👷</span> Équipe</a>
+        <a data-view="clients"><span class="ic">🧑</span> Clients</a>
+        <a href="index.html"><span class="ic">↩</span> Voir le site</a>
+      </nav>
+      <div class="sidebar__foot">
+        <button class="btn btn--ghost btn--block" id="logoutBtn" style="border-color:rgba(255,255,255,.25)">Se déconnecter</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px">
+          <button class="burger-app" id="burgerApp"><span></span><span></span><span></span></button>
+          <h1 id="pageTitle">Tableau de bord</h1>
+        </div>
+        <div class="who">
+          <div class="meta" style="text-align:right"><b id="whoName">Admin</b><span>Administrateur</span></div>
+          <div class="avatar" id="whoAvatar">A</div>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- DASH -->
+        <section data-view="dash">
+          <div class="kpis">
+            <div class="kpi"><div class="ic">🗂</div><b id="kReq">0</b><span>Demandes totales</span></div>
+            <div class="kpi"><div class="ic">💰</div><b id="kRev">0</b><span>Estimation cumulée</span></div>
+            <div class="kpi"><div class="ic">🧑</div><b id="kClients">0</b><span>Clients</span></div>
+            <div class="kpi"><div class="ic">👷</div><b id="kEmp">0</b><span>Employés</span></div>
+          </div>
+          <div class="panel">
+            <div class="panel__head"><div><h2>Vue d'ensemble des demandes</h2><p>Pilotez l'affectation et le statut des projets.</p></div></div>
+            <div id="dashTable"></div>
+          </div>
+        </section>
+
+        <!-- DEMANDES -->
+        <section data-view="requests" class="hidden">
+          <div class="panel">
+            <div class="panel__head">
+              <div><h2>Toutes les demandes</h2><p>Affectez un employé, changez le statut ou supprimez.</p></div>
+              <select class="select" id="filterStatus" style="max-width:200px">
+                <option value="">Tous les statuts</option>
+                <option value="new">Nouvelles</option>
+                <option value="progress">En cours</option>
+                <option value="done">Terminées</option>
+                <option value="rejected">Refusées</option>
+              </select>
+            </div>
+            <div id="allTable"></div>
+          </div>
+        </section>
+
+        <!-- ÉQUIPE -->
+        <section data-view="employees" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Créer un compte employé / admin</h2><p>Donnez accès à un nouveau membre de l'équipe.</p></div></div>
+            <form id="empForm">
+              <div class="grid-2">
+                <div class="field"><label>Nom complet</label><input class="input" id="eName" required placeholder="Nom du membre" /></div>
+                <div class="field"><label>Fonction</label><input class="input" id="eTitle" placeholder="Ex. Architecte, Ingénieur BTP" /></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label>E-mail</label><input class="input" type="email" id="eEmail" required placeholder="membre@archibuilders.com" /></div>
+                <div class="field"><label>Téléphone</label><input class="input" id="ePhone" placeholder="+228 ..." /></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label>Mot de passe</label><input class="input" id="ePass" required placeholder="Mot de passe" /></div>
+                <div class="field"><label>Rôle</label>
+                  <select class="select" id="eRole"><option value="employe">Employé</option><option value="admin">Administrateur</option></select>
+                </div>
+              </div>
+              <div class="alert alert--ok" id="empOk"></div>
+              <div class="alert alert--err" id="empErr"></div>
+              <button class="btn btn--gold">＋ Créer le compte</button>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="panel__head"><div><h2>Membres de l'équipe</h2></div></div>
+            <div id="empTable"></div>
+          </div>
+        </section>
+
+        <!-- CLIENTS -->
+        <section data-view="clients" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Clients</h2><p>Comptes clients et activité.</p></div></div>
+            <div id="clientTable"></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal__box">
+      <div class="modal__head"><h3 id="mTitle">Détail</h3><button class="modal__close" id="mClose">&times;</button></div>
+      <div class="modal__body" id="mBody"></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app-shell.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
