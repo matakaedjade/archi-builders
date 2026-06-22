@@ -25,6 +25,7 @@
         <a data-view="dash" class="active"><span class="ic">▦</span> Tableau de bord</a>
         <a data-view="new"><span class="ic">＋</span> Nouvelle conception</a>
         <a data-view="requests"><span class="ic">🗂</span> Mes demandes</a>
+        <a data-view="projets"><span class="ic">🏙️</span> Projets réalisés</a>
         <a data-view="contact"><span class="ic">☎</span> Contacter l'architecte</a>
         <a href="index.html"><span class="ic">↩</span> Voir le site</a>
       </nav>
@@ -306,6 +307,14 @@
           </div>
         </section>
 
+        <!-- ========== VUE : PROJETS RÉALISÉS ========== -->
+        <section data-view="projets" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Projets réalisés</h2><p>Découvrez nos villas, duplex, immeubles et aménagements. Cliquez sur une image pour l'agrandir.</p></div></div>
+            <div class="proj-grid" id="clientProjGrid"></div>
+          </div>
+        </section>
+
         <!-- ========== VUE : CONTACT ========== -->
         <section data-view="contact" class="hidden">
           <div class="panel">
@@ -320,6 +329,12 @@
 
       </div>
     </div>
+  </div>
+
+  <!-- ===== Visionneuse plein écran (projets) ===== -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox__close" id="lbClose">&times;</button>
+    <img src="" alt="Aperçu du projet" id="lbImg" />
   </div>
 
   <!-- ===== Modale détail demande ===== -->

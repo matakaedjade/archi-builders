@@ -181,11 +181,49 @@
     ).join("") : "<p class='muted'>Aucun concepteur disponible pour le moment.</p>";
   }
 
+  /* ==========  PROJETS RÉALISÉS (galerie)  ========== */
+  const PROJETS = [
+    { img: "assets/images/render-villa.jpg", t: "Villa contemporaine", c: "Villas & Duplex" },
+    { img: "assets/images/ext-villa-dusk.jpg", t: "Villa d'architecte", c: "Villas & Duplex" },
+    { img: "assets/images/ext-villa-pool.jpg", t: "Villa avec piscine", c: "Villas & Duplex" },
+    { img: "assets/images/ext-villa-terrace.jpg", t: "Duplex moderne", c: "Villas & Duplex" },
+    { img: "assets/images/ext-villa-white.jpg", t: "Villa minimaliste", c: "Villas & Duplex" },
+    { img: "assets/images/render-house.jpg", t: "Maison familiale moderne", c: "Villas & Duplex" },
+    { img: "assets/images/render-tower.jpg", t: "Immeuble R+6 mixte", c: "Immeubles" },
+    { img: "assets/images/render-interior.jpg", t: "Hall & réception", c: "Intérieurs" },
+    { img: "assets/images/int-living-garden.jpg", t: "Séjour ouvert sur jardin", c: "Intérieurs" },
+    { img: "assets/images/int-living-stair.jpg", t: "Séjour & mezzanine", c: "Intérieurs" },
+    { img: "assets/images/int-living-warm.jpg", t: "Salon design chaleureux", c: "Intérieurs" },
+    { img: "assets/images/int-living-glass.jpg", t: "Salon baie vitrée", c: "Intérieurs" },
+  ];
+  function renderProjets() {
+    const grid = $("clientProjGrid");
+    if (!grid || grid.dataset.done) return;
+    grid.innerHTML = PROJETS.map((p) =>
+      '<article class="pcard" data-img="' + p.img + '">' +
+        '<div class="pcard__img"><img src="' + p.img + '" alt="' + AB.escapeHtml(p.t) + '" loading="lazy" /><span class="pcard__zoom">＋</span></div>' +
+        '<div class="pcard__body"><span class="pcard__cat">' + p.c + '</span><h3>' + AB.escapeHtml(p.t) + '</h3><p>📍 Lomé, Togo</p></div>' +
+      "</article>").join("");
+    grid.dataset.done = "1";
+  }
+  (function () {
+    const lb = $("lightbox"), lbImg = $("lbImg");
+    if (!lb) return;
+    document.addEventListener("click", (e) => {
+      const card = e.target.closest("#clientProjGrid .pcard");
+      if (card) { lbImg.src = card.dataset.img; lb.classList.add("open"); }
+    });
+    $("lbClose").addEventListener("click", () => lb.classList.remove("open"));
+    lb.addEventListener("click", (e) => { if (e.target === lb) lb.classList.remove("open"); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") lb.classList.remove("open"); });
+  })();
+
   /* ==========  ORCHESTRATION  ========== */
   async function refreshAll() { await loadMine(); refreshKpis(); renderRecent(); renderRequests(); }
   async function onViewChange(view) {
     if (view === "requests") { await loadMine(); renderRequests(); }
     if (view === "dash") { await loadMine(); refreshKpis(); renderRecent(); }
+    if (view === "projets") renderProjets();
     if (view === "contact") renderContacts();
     if (view === "new") recalc();
   }

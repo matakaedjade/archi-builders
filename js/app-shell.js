@@ -7,8 +7,8 @@ window.SHELL = (function () {
 
   const VIEW_TITLES = {
     dash: "Tableau de bord", new: "Nouvelle conception", requests: "Demandes",
-    mine: "Mes dossiers", contact: "Contact", employees: "Équipe & comptes",
-    clients: "Clients", settings: "Paramètres",
+    mine: "Mes dossiers", projets: "Projets réalisés", contact: "Contact",
+    employees: "Équipe & comptes", clients: "Clients", reports: "Rapports", settings: "Paramètres",
   };
 
   async function initSession(role) {
