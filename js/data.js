@@ -38,6 +38,18 @@ window.AB = (function () {
     rejected: { label: "Refusée",  cls: "badge--rejected" },
   };
 
+  /* ----------  Métiers / postes  ---------- */
+  const DEPARTMENTS = {
+    architecte: "Architecte", ingenieur: "Ingénieur", technicien: "Technicien",
+    comptable: "Comptable", secretaire: "Secrétaire", securite: "Agent de sécurité",
+    dg: "Directeur Général", dt: "Directeur Technique", direction: "Direction",
+  };
+  const EMPLOYEE_DEPTS = ["architecte", "ingenieur", "technicien", "comptable", "secretaire", "securite"];
+  const ADMIN_DEPTS = ["dg", "dt", "direction"];
+  const CONCEPTION_DEPTS = ["architecte", "ingenieur", "technicien"];
+  const deptLabel = (d) => DEPARTMENTS[d] || (d || "—");
+
   return { PRICE_PER_SQM, CURRENCY, STATUS,
+           DEPARTMENTS, EMPLOYEE_DEPTS, ADMIN_DEPTS, CONCEPTION_DEPTS, deptLabel,
            formatMoney, formatNumber, formatDate, escapeHtml, computeQuote };
 })();

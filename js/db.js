@@ -8,7 +8,12 @@ window.DB = (function () {
   /* ----------  Conversions base de données <-> application  ---------- */
   function rowToProfile(p) {
     return { id: p.id, name: p.name, email: p.email, phone: p.phone,
-             title: p.title, role: p.role, createdAt: p.created_at };
+             title: p.title, role: p.role, department: p.department, createdAt: p.created_at };
+  }
+
+  function rowToReport(r) {
+    return { id: r.id, authorName: r.author_name, department: r.department,
+             title: r.title, period: r.period, content: r.content, createdAt: r.created_at };
   }
 
   function rowToRequest(r) {
@@ -141,10 +146,35 @@ window.DB = (function () {
     return data.signedUrl;
   }
 
+  /* ----------  Rapports  ---------- */
+  // RLS : un employé voit ses rapports ; un admin voit tous les rapports.
+  async function getReports() {
+    const { data, error } = await sb.from("reports").select("*").order("created_at", { ascending: false });
+    if (error) { console.error(error); return []; }
+    return data.map(rowToReport);
+  }
+  async function addReport(o) {
+    const u = await currentUser();
+    if (!u) return { ok: false, error: "Vous devez être connecté." };
+    const prof = await currentProfile();
+    const row = {
+      author_id: u.id, author_name: prof ? prof.name : "", department: prof ? prof.department : null,
+      title: o.title, period: o.period, content: o.content,
+    };
+    const { data, error } = await sb.from("reports").insert(row).select().single();
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, report: rowToReport(data) };
+  }
+  async function deleteReport(id) {
+    const { error } = await sb.from("reports").delete().eq("id", id);
+    return { ok: !error, error: error && error.message };
+  }
+
   return {
     currentUser, currentProfile, clearCache,
     getStaff, getEmployees, getClients, getAllProfiles, updateProfile, setRole, deleteProfile,
     getRequests, getRequestById, addRequest, updateRequest, deleteRequest,
     uploadPlan, signedUrl,
+    getReports, addReport, deleteReport,
   };
 })();

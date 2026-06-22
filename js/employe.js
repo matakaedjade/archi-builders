@@ -1,5 +1,5 @@
 /* =====================================================================
-   ARCHI_BUILDERS — Espace Employé (Supabase)
+   ARCHI_BUILDERS — Espace Employé (Supabase) — métiers, collègues, rapports
    ===================================================================== */
 (async function () {
   "use strict";
@@ -11,9 +11,13 @@
   const nav = SHELL.initNav(onViewChange);
   const $ = (id) => document.getElementById(id);
 
-  let allReqs = [];
-  const mine = () => allReqs.filter((r) => r.assignedTo === session.name);
+  // Affiche le métier dans le bandeau
+  const roleEl = $("whoRole");
+  if (roleEl) roleEl.textContent = session.department ? AB.deptLabel(session.department) : "Employé";
 
+  let allReqs = [];
+  let myReports = [];
+  const mine = () => allReqs.filter((r) => r.assignedTo === session.name);
   async function load() { allReqs = await DB.getRequests(); }
 
   function refreshKpis() {
@@ -23,6 +27,7 @@
     $("kDone").textContent = allReqs.filter((x) => x.status === "done").length;
   }
 
+  /* ----------  Tableau des demandes  ---------- */
   function tableHtml(list) {
     if (!list.length) return "<div class='empty'><div class='ic'>📭</div><p>Aucune demande.</p></div>";
     return '<div class="table-wrap"><table class="tbl"><thead><tr>' +
@@ -40,7 +45,6 @@
         "</tr>").join("") +
       "</tbody></table></div>";
   }
-
   function renderDash() { $("dashTable").innerHTML = tableHtml(allReqs.slice(0, 6)); }
   function renderAll() {
     const f = $("filterStatus").value;
@@ -49,11 +53,10 @@
   function renderMine() { $("mineTable").innerHTML = tableHtml(mine()); }
   $("filterStatus").addEventListener("change", renderAll);
 
-  /* ----------  Détail + actions  ---------- */
+  /* ----------  Détail + actions sur les dossiers  ---------- */
   document.addEventListener("click", async (e) => {
     const d = e.target.closest("[data-detail]");
     if (d) { const r = allReqs.find((x) => x.id === d.dataset.detail); if (r) showDetail(r); return; }
-
     const act = e.target.closest("[data-act]");
     if (!act) return;
     const id = act.dataset.id;
@@ -85,10 +88,75 @@
       actions);
   }
 
+  /* ----------  Collègues (toute l'équipe)  ---------- */
+  async function renderColleagues() {
+    const staff = await DB.getStaff();
+    if (!staff.length) { $("colleaguesTable").innerHTML = "<div class='empty'><div class='ic'>👥</div><p>Aucun membre pour l'instant.</p></div>"; return; }
+    $("colleaguesTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
+      "<th>Nom</th><th>Métier</th><th>Téléphone</th><th>E-mail</th></tr></thead><tbody>" +
+      staff.map((u) =>
+        "<tr>" +
+        "<td class='strong'>" + AB.escapeHtml(u.name || "—") + (u.id === session.id ? " <span class='muted'>(vous)</span>" : "") + "</td>" +
+        "<td>" + AB.escapeHtml(u.department ? AB.deptLabel(u.department) : (u.role === "admin" ? "Direction" : "Employé")) + "</td>" +
+        "<td>" + (u.phone ? "<a href='tel:" + AB.escapeHtml((u.phone || "").replace(/\s/g, "")) + "'>" + AB.escapeHtml(u.phone) + "</a>" : "—") + "</td>" +
+        "<td class='muted'>" + AB.escapeHtml(u.email || "") + "</td>" +
+        "</tr>").join("") +
+      "</tbody></table></div>";
+  }
+
+  /* ----------  Rapports  ---------- */
+  $("reportForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const ok = $("reportOk"), err = $("reportErr");
+    ok.classList.remove("show"); err.classList.remove("show");
+    const title = $("rTitle").value.trim();
+    const content = $("rContent").value.trim();
+    if (!title || !content) { err.textContent = "Titre et contenu sont obligatoires."; err.classList.add("show"); return; }
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true; const lbl = btn.textContent; btn.textContent = "⏳ Envoi…";
+    const res = await DB.addReport({ title, period: $("rPeriod").value.trim(), content });
+    btn.disabled = false; btn.textContent = lbl;
+    if (!res.ok) { err.textContent = res.error || "Erreur lors de l'envoi."; err.classList.add("show"); return; }
+    ok.textContent = "✅ Rapport envoyé à la direction.";
+    ok.classList.add("show");
+    $("reportForm").reset();
+    await loadReports();
+  });
+
+  async function loadReports() {
+    myReports = await DB.getReports();
+    renderMyReports();
+  }
+  function renderMyReports() {
+    if (!myReports.length) { $("myReportsTable").innerHTML = "<div class='empty'><div class='ic'>📝</div><p>Aucun rapport envoyé pour le moment.</p></div>"; return; }
+    $("myReportsTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
+      "<th>Titre</th><th>Période</th><th>Date</th><th></th></tr></thead><tbody>" +
+      myReports.map((r) =>
+        "<tr>" +
+        "<td class='strong'>" + AB.escapeHtml(r.title) + "</td>" +
+        "<td>" + AB.escapeHtml(r.period || "—") + "</td>" +
+        "<td class='muted'>" + AB.formatDate(r.createdAt) + "</td>" +
+        "<td><button class='btn btn--outline btn--sm' data-report='" + r.id + "'>Voir</button></td>" +
+        "</tr>").join("") +
+      "</tbody></table></div>";
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-report]");
+    if (!b) return;
+    const r = myReports.find((x) => x.id === b.dataset.report);
+    if (r) SHELL.openModal("Rapport — " + r.title,
+      SHELL.row("Période", AB.escapeHtml(r.period || "—")) +
+      SHELL.row("Date", AB.formatDate(r.createdAt)) +
+      "<div style='margin-top:14px;white-space:pre-wrap'>" + AB.escapeHtml(r.content) + "</div>");
+  });
+
+  /* ----------  Orchestration  ---------- */
   async function onViewChange(view) {
     if (view === "dash") { await load(); refreshKpis(); renderDash(); }
     if (view === "requests") { await load(); renderAll(); }
     if (view === "mine") { await load(); renderMine(); }
+    if (view === "colleagues") renderColleagues();
+    if (view === "reports") loadReports();
   }
 
   await load();

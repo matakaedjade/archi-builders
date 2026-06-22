@@ -22,6 +22,8 @@
         <a data-view="dash" class="active"><span class="ic">▦</span> Tableau de bord</a>
         <a data-view="requests"><span class="ic">🗂</span> Toutes les demandes</a>
         <a data-view="mine"><span class="ic">👤</span> Mes dossiers</a>
+        <a data-view="colleagues"><span class="ic">👥</span> Collègues</a>
+        <a data-view="reports"><span class="ic">📝</span> Mes rapports</a>
         <a href="index.html"><span class="ic">↩</span> Voir le site</a>
       </nav>
       <div class="sidebar__foot">
@@ -36,7 +38,7 @@
           <h1 id="pageTitle">Tableau de bord</h1>
         </div>
         <div class="who">
-          <div class="meta" style="text-align:right"><b id="whoName">Employé</b><span>Employé</span></div>
+          <div class="meta" style="text-align:right"><b id="whoName">Employé</b><span id="whoRole">Employé</span></div>
           <div class="avatar" id="whoAvatar">E</div>
         </div>
       </div>
@@ -79,6 +81,35 @@
           <div class="panel">
             <div class="panel__head"><div><h2>Mes dossiers</h2><p>Les demandes qui vous sont affectées.</p></div></div>
             <div id="mineTable"></div>
+          </div>
+        </section>
+
+        <!-- COLLÈGUES -->
+        <section data-view="colleagues" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>L'équipe ARCHI_BUILDERS</h2><p>Tous les métiers : architecture, ingénierie, comptabilité, secrétariat, sécurité…</p></div></div>
+            <div id="colleaguesTable"></div>
+          </div>
+        </section>
+
+        <!-- MES RAPPORTS -->
+        <section data-view="reports" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Rédiger un rapport</h2><p>Envoyez votre rapport d'activité à la direction.</p></div></div>
+            <form id="reportForm">
+              <div class="grid-2">
+                <div class="field"><label for="rTitle">Titre du rapport</label><input class="input" id="rTitle" required placeholder="Ex. Rapport hebdomadaire — chantier Agoè" /></div>
+                <div class="field"><label for="rPeriod">Période</label><input class="input" id="rPeriod" placeholder="Ex. Semaine du 16 au 22 juin" /></div>
+              </div>
+              <div class="field"><label for="rContent">Contenu du rapport</label><textarea class="textarea" id="rContent" required placeholder="Décrivez vos activités, l'avancement, les points à signaler…" style="min-height:140px"></textarea></div>
+              <div class="alert alert--ok" id="reportOk"></div>
+              <div class="alert alert--err" id="reportErr"></div>
+              <button type="submit" class="btn btn--gold">📤 Envoyer le rapport</button>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="panel__head"><div><h2>Mes rapports envoyés</h2></div></div>
+            <div id="myReportsTable"></div>
           </div>
         </section>
 

@@ -21,6 +21,8 @@
       <nav class="snav" id="snav">
         <a data-view="dash" class="active"><span class="ic">▦</span> Tableau de bord</a>
         <a data-view="requests"><span class="ic">🗂</span> Demandes</a>
+        <a data-view="supervision"><span class="ic">🗂</span> Supervision (métiers)</a>
+        <a data-view="reports"><span class="ic">📝</span> Rapports</a>
         <a data-view="employees"><span class="ic">👷</span> Équipe</a>
         <a data-view="clients"><span class="ic">🧑</span> Clients</a>
         <a href="index.html"><span class="ic">↩</span> Voir le site</a>
@@ -97,6 +99,22 @@
           <div class="panel">
             <div class="panel__head"><div><h2>Clients</h2><p>Comptes clients et activité.</p></div></div>
             <div id="clientTable"></div>
+          </div>
+        </section>
+
+        <!-- SUPERVISION (par métier) -->
+        <section data-view="supervision" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Supervision des métiers</h2><p>Entrez dans l'espace de chaque métier pour voir ses membres et leurs dossiers en cours.</p></div></div>
+            <div id="supervisionWrap"></div>
+          </div>
+        </section>
+
+        <!-- RAPPORTS -->
+        <section data-view="reports" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Rapports des employés</h2><p>Tous les rapports envoyés par l'équipe à la direction.</p></div></div>
+            <div id="adminReportsTable"></div>
           </div>
         </section>
 
