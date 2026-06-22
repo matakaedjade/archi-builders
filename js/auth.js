@@ -46,7 +46,8 @@ window.AUTH = (function () {
       return { ok: false, error: "Compte créé. Vérifiez votre boîte e-mail pour confirmer, puis connectez-vous." };
     }
     DB.clearCache();
-    return { ok: true, user: { email: d.email, role: "client" } };
+    const prof = await DB.currentProfile(true);
+    return { ok: true, user: { email: d.email, role: prof ? prof.role : "client" } };
   }
 
   async function logout() {
