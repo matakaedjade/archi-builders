@@ -78,26 +78,13 @@
         <!-- ÉQUIPE -->
         <section data-view="employees" class="hidden">
           <div class="panel">
-            <div class="panel__head"><div><h2>Créer un compte employé / admin</h2><p>Donnez accès à un nouveau membre de l'équipe.</p></div></div>
-            <form id="empForm">
-              <div class="grid-2">
-                <div class="field"><label>Nom complet</label><input class="input" id="eName" required placeholder="Nom du membre" /></div>
-                <div class="field"><label>Fonction</label><input class="input" id="eTitle" placeholder="Ex. Architecte, Ingénieur BTP" /></div>
-              </div>
-              <div class="grid-2">
-                <div class="field"><label>E-mail</label><input class="input" type="email" id="eEmail" required placeholder="membre@archibuilders.com" /></div>
-                <div class="field"><label>Téléphone</label><input class="input" id="ePhone" placeholder="+228 ..." /></div>
-              </div>
-              <div class="grid-2">
-                <div class="field"><label>Mot de passe</label><input class="input" id="ePass" required placeholder="Mot de passe" /></div>
-                <div class="field"><label>Rôle</label>
-                  <select class="select" id="eRole"><option value="employe">Employé</option><option value="admin">Administrateur</option></select>
-                </div>
-              </div>
-              <div class="alert alert--ok" id="empOk"></div>
-              <div class="alert alert--err" id="empErr"></div>
-              <button class="btn btn--gold">＋ Créer le compte</button>
-            </form>
+            <div class="panel__head"><div><h2>Ajouter un employé ou un administrateur</h2></div></div>
+            <div style="padding:18px;background:var(--green-100);border-radius:var(--radius-sm);color:var(--green-800)">
+              <p style="margin-bottom:10px"><b>Comment ajouter un membre de l'équipe :</b></p>
+              <p style="font-size:.92rem;line-height:1.8">1️⃣ La personne crée d'abord un compte sur le <a href="portail.html" target="_blank" style="color:var(--green-700);font-weight:600">portail</a> (comme un client).<br>
+              2️⃣ Vous la retrouvez dans l'onglet <b>« Clients »</b> (ou ci-dessous si elle fait déjà partie de l'équipe).<br>
+              3️⃣ Changez son <b>rôle</b> en « 👷 Employé » ou « 🏛️ Admin » via le menu déroulant — c'est immédiat et sécurisé.</p>
+            </div>
           </div>
           <div class="panel">
             <div class="panel__head"><div><h2>Membres de l'équipe</h2></div></div>
@@ -124,7 +111,10 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/app-shell.js"></script>
   <script src="js/admin.js"></script>

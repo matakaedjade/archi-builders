@@ -1,17 +1,12 @@
 /* =====================================================================
-   ARCHI_BUILDERS — Logique du portail (connexion / inscription)
+   ARCHI_BUILDERS — Portail (connexion / inscription) via Supabase
    ===================================================================== */
 (function () {
   "use strict";
-
   document.querySelectorAll(".yr").forEach((e) => (e.textContent = new Date().getFullYear()));
 
-  // Si déjà connecté, on redirige vers le bon espace
-  const session = AUTH.current();
-  if (session) { window.location.href = AUTH.dashboardFor(session.role); return; }
-
   let role = "client";
-  let mode = "login"; // 'login' | 'register'
+  let mode = "login";
 
   const tabs = document.getElementById("roleTabs");
   const formTitle = document.getElementById("formTitle");
@@ -32,6 +27,13 @@
   function clearAlerts() { alertErr.classList.remove("show"); alertOk.classList.remove("show"); }
   function showErr(m) { clearAlerts(); alertErr.textContent = m; alertErr.classList.add("show"); }
   function showOk(m) { clearAlerts(); alertOk.textContent = m; alertOk.classList.add("show"); }
+  function setBusy(form, busy, label) {
+    const btn = form.querySelector("button[type=submit]");
+    if (!btn) return;
+    btn.disabled = busy;
+    if (busy) { btn.dataset.label = btn.textContent; btn.textContent = "⏳ " + (label || "Patientez…"); }
+    else if (btn.dataset.label) btn.textContent = btn.dataset.label;
+  }
 
   function setMode(m) {
     mode = m;
@@ -41,17 +43,15 @@
     formTitle.textContent = reg ? "Créer un espace client" : TITLES[role].t;
     formSub.textContent = reg ? "Quelques informations et c'est parti." : TITLES[role].s;
     toggleBtn.textContent = reg ? "J'ai déjà un compte" : "Créer un espace client";
-    toggleWrap.firstChild.textContent = reg ? "Déjà inscrit·e ? " : "Pas encore de compte ? ";
+    toggleWrap.firstChild.textContent = reg ? "Déjà inscrit·e ? " : "Pas encore de compte ? ";
     clearAlerts();
   }
 
-  // Onglets de rôle
   tabs.addEventListener("click", (e) => {
     const btn = e.target.closest(".role-tab");
     if (!btn) return;
     role = btn.dataset.role;
     tabs.querySelectorAll(".role-tab").forEach((t) => t.classList.toggle("active", t === btn));
-    // L'inscription n'est proposée qu'aux clients
     toggleWrap.style.display = role === "client" ? "block" : "none";
     if (role !== "client") setMode("login");
     formTitle.textContent = TITLES[role].t;
@@ -59,31 +59,38 @@
     clearAlerts();
   });
 
-  // Basculer connexion / inscription
   toggleBtn.addEventListener("click", () => setMode(mode === "login" ? "register" : "login"));
 
-  // Connexion
-  loginForm.addEventListener("submit", (e) => {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("email").value.trim();
+    setBusy(loginForm, true, "Connexion…");
+    const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    const res = AUTH.login(email, password, role);
+    const res = await AUTH.login(email, password, role);
+    setBusy(loginForm, false);
     if (!res.ok) return showErr(res.error);
     window.location.href = AUTH.dashboardFor(res.user.role);
   });
 
-  // Inscription
-  registerForm.addEventListener("submit", (e) => {
+  registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    setBusy(registerForm, true, "Création…");
     const data = {
       name: document.getElementById("rName").value.trim(),
       email: document.getElementById("rEmail").value.trim(),
       phone: document.getElementById("rPhone").value.trim(),
       password: document.getElementById("rPass").value,
     };
-    const res = AUTH.register(data);
+    const res = await AUTH.register(data);
+    setBusy(registerForm, false);
     if (!res.ok) return showErr(res.error);
     showOk("Compte créé ! Redirection…");
-    setTimeout(() => (window.location.href = AUTH.dashboardFor("client")), 700);
+    setTimeout(() => (window.location.href = AUTH.dashboardFor("client")), 600);
   });
+
+  // Déjà connecté ? -> on redirige vers le bon espace
+  (async function () {
+    const prof = await AUTH.current();
+    if (prof) window.location.href = AUTH.dashboardFor(prof.role);
+  })();
 })();

@@ -1,29 +1,25 @@
 /* =====================================================================
    ARCHI_BUILDERS — Coquille commune des tableaux de bord
-   (navigation entre vues, menu mobile, déconnexion, modale)
+   (navigation, menu mobile, déconnexion, modale, détail des demandes)
    ===================================================================== */
 window.SHELL = (function () {
   "use strict";
 
   const VIEW_TITLES = {
-    dash: "Tableau de bord",
-    new: "Nouvelle conception",
-    requests: "Demandes",
-    contact: "Contact",
-    employees: "Équipe & comptes",
-    clients: "Clients",
-    settings: "Paramètres",
+    dash: "Tableau de bord", new: "Nouvelle conception", requests: "Demandes",
+    mine: "Mes dossiers", contact: "Contact", employees: "Équipe & comptes",
+    clients: "Clients", settings: "Paramètres",
   };
 
-  function initSession(role) {
-    const s = AUTH.requireRole(role);
+  async function initSession(role) {
+    const s = await AUTH.requireRole(role);
     if (!s) return null;
     const nameEl = document.getElementById("whoName");
     const avEl = document.getElementById("whoAvatar");
-    if (nameEl) nameEl.textContent = s.name;
-    if (avEl) avEl.textContent = (s.name || "?").charAt(0).toUpperCase();
+    if (nameEl) nameEl.textContent = s.name || s.email;
+    if (avEl) avEl.textContent = (s.name || s.email || "?").charAt(0).toUpperCase();
     const logout = document.getElementById("logoutBtn");
-    if (logout) logout.addEventListener("click", AUTH.logout);
+    if (logout) logout.addEventListener("click", function () { AUTH.logout(); });
     return s;
   }
 
@@ -41,24 +37,19 @@ window.SHELL = (function () {
       if (typeof onChange === "function") onChange(view);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-
     snav.addEventListener("click", (e) => {
       const a = e.target.closest("a[data-view]");
       if (!a) return;
       e.preventDefault();
       show(a.dataset.view);
     });
-
-    // Boutons "data-goto" disséminés dans les vues
     document.addEventListener("click", (e) => {
       const g = e.target.closest("[data-goto]");
       if (g) { e.preventDefault(); show(g.dataset.goto); }
     });
-
     return { show };
   }
 
-  /* ----------  Menu latéral mobile  ---------- */
   const sidebar = () => document.getElementById("sidebar");
   const backdrop = () => document.getElementById("backdrop");
   function openSidebar() { sidebar()?.classList.add("open"); backdrop()?.classList.add("show"); }
@@ -68,7 +59,6 @@ window.SHELL = (function () {
     document.getElementById("backdrop")?.addEventListener("click", closeSidebar);
   }
 
-  /* ----------  Modale  ---------- */
   function openModal(title, html) {
     const modal = document.getElementById("modal");
     if (!modal) return;
@@ -79,20 +69,29 @@ window.SHELL = (function () {
   function closeModal() { document.getElementById("modal")?.classList.remove("open"); }
   function initModal() {
     const modal = document.getElementById("modal");
-    if (!modal) return;
-    document.getElementById("mClose")?.addEventListener("click", closeModal);
-    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+    if (modal) {
+      document.getElementById("mClose")?.addEventListener("click", closeModal);
+      modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+    }
+    // Téléchargement sécurisé d'un plan (lien signé à la demande)
+    document.addEventListener("click", async (e) => {
+      const a = e.target.closest("[data-plan]");
+      if (!a) return;
+      e.preventDefault();
+      a.textContent = "⏳ ouverture…";
+      const url = await DB.signedUrl(a.dataset.plan);
+      a.textContent = a.dataset.name || "Plan";
+      if (url) window.open(url, "_blank");
+      else alert("Impossible d'ouvrir ce fichier.");
+    });
   }
 
   function badge(status) {
     const s = AB.STATUS[status] || AB.STATUS.new;
     return '<span class="badge ' + s.cls + '">' + s.label + "</span>";
   }
-
-  /* ----------  Détail d'une demande (cahier des charges partagé)  ---------- */
   function row(k, v) { return '<div class="detail-row"><span>' + k + "</span><b>" + v + "</b></div>"; }
-
   function amountBlock(amount) {
     return '<div class="detail-amount"><small>MONTANT DE LA CONCEPTION</small><div class="amount">' +
       AB.formatMoney(amount) + "</div></div>";
@@ -102,10 +101,12 @@ window.SHELL = (function () {
     if (!r.files || !r.files.length) return "<span class='muted'>Aucun plan joint.</span>";
     return r.files.map(function (f) {
       const role = AB.escapeHtml(f.role || "Fichier");
-      const name = AB.escapeHtml(f.name);
-      return f.data
-        ? "<span class='file-pill'>📎 " + role + " : <a href='" + f.data + "' download='" + name + "' target='_blank'>" + name + "</a></span>"
-        : "<span class='file-pill'>📎 " + role + " : " + name + " <span class='muted'>(non joint)</span></span>";
+      const name = AB.escapeHtml(f.name || "plan");
+      if (f.path) {
+        return "<span class='file-pill'>📎 " + role + " : <a href='#' class='plan-link' data-plan='" +
+          AB.escapeHtml(f.path) + "' data-name='" + name + "'>" + name + "</a></span>";
+      }
+      return "<span class='file-pill'>📎 " + role + " : " + name + " <span class='muted'>(non joint)</span></span>";
     }).join("");
   }
 
@@ -138,6 +139,6 @@ window.SHELL = (function () {
     return html;
   }
 
-  return { initSession, initNav, initMobile, initModal, openModal, closeModal, badge,
-           row, amountBlock, filesHtml, briefRows, VIEW_TITLES };
+  return { initSession, initNav, initMobile, initModal, openModal, closeModal,
+           badge, row, amountBlock, filesHtml, briefRows, VIEW_TITLES };
 })();

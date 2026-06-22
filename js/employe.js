@@ -1,29 +1,28 @@
 /* =====================================================================
-   ARCHI_BUILDERS — Espace Employé
+   ARCHI_BUILDERS — Espace Employé (Supabase)
    ===================================================================== */
-(function () {
+(async function () {
   "use strict";
 
-  const session = SHELL.initSession("employe");
+  const session = await SHELL.initSession("employe");
   if (!session) return;
   SHELL.initMobile();
   SHELL.initModal();
   const nav = SHELL.initNav(onViewChange);
   const $ = (id) => document.getElementById(id);
 
-  const all = () => AB.getRequests();
-  const mine = () => all().filter((r) => r.assignedTo === session.name);
+  let allReqs = [];
+  const mine = () => allReqs.filter((r) => r.assignedTo === session.name);
 
-  /* ----------  KPIs  ---------- */
+  async function load() { allReqs = await DB.getRequests(); }
+
   function refreshKpis() {
-    const r = all();
-    $("kTotal").textContent = r.length;
-    $("kNew").textContent = r.filter((x) => x.status === "new").length;
+    $("kTotal").textContent = allReqs.length;
+    $("kNew").textContent = allReqs.filter((x) => x.status === "new").length;
     $("kMine").textContent = mine().length;
-    $("kDone").textContent = r.filter((x) => x.status === "done").length;
+    $("kDone").textContent = allReqs.filter((x) => x.status === "done").length;
   }
 
-  /* ----------  Tableau  ---------- */
   function tableHtml(list) {
     if (!list.length) return "<div class='empty'><div class='ic'>📭</div><p>Aucune demande.</p></div>";
     return '<div class="table-wrap"><table class="tbl"><thead><tr>' +
@@ -42,30 +41,29 @@
       "</tbody></table></div>";
   }
 
-  function renderDash() { $("dashTable").innerHTML = tableHtml(all().slice(0, 6)); }
+  function renderDash() { $("dashTable").innerHTML = tableHtml(allReqs.slice(0, 6)); }
   function renderAll() {
     const f = $("filterStatus").value;
-    const list = f ? all().filter((r) => r.status === f) : all();
-    $("allTable").innerHTML = tableHtml(list);
+    $("allTable").innerHTML = tableHtml(f ? allReqs.filter((r) => r.status === f) : allReqs);
   }
   function renderMine() { $("mineTable").innerHTML = tableHtml(mine()); }
-
   $("filterStatus").addEventListener("change", renderAll);
 
   /* ----------  Détail + actions  ---------- */
-  document.addEventListener("click", (e) => {
+  document.addEventListener("click", async (e) => {
     const d = e.target.closest("[data-detail]");
-    if (d) { const r = all().find((x) => x.id === d.dataset.detail); if (r) showDetail(r); return; }
+    if (d) { const r = allReqs.find((x) => x.id === d.dataset.detail); if (r) showDetail(r); return; }
 
     const act = e.target.closest("[data-act]");
     if (!act) return;
     const id = act.dataset.id;
-    if (act.dataset.act === "assign") AB.updateRequest(id, { assignedTo: session.name, status: "progress" });
-    if (act.dataset.act === "status") AB.updateRequest(id, { status: act.dataset.val });
-    SHELL.closeModal();
-    refreshAll();
-    const r = all().find((x) => x.id === id);
-    if (r) showDetail(r);
+    act.disabled = true;
+    if (act.dataset.act === "assign") await DB.updateRequest(id, { assignedTo: session.name, status: "progress" });
+    if (act.dataset.act === "status") await DB.updateRequest(id, { status: act.dataset.val });
+    await load();
+    refreshKpis(); renderDash(); renderAll(); renderMine();
+    const r = allReqs.find((x) => x.id === id);
+    if (r) showDetail(r); else SHELL.closeModal();
   });
 
   function showDetail(r) {
@@ -76,7 +74,6 @@
       "<button class='btn btn--outline btn--sm' data-act='status' data-val='done' data-id='" + r.id + "'>Terminée</button>" +
       "<button class='btn btn--outline btn--sm' data-act='status' data-val='rejected' data-id='" + r.id + "'>Refuser</button>" +
       "</div>";
-
     SHELL.openModal("Demande — " + r.clientName,
       SHELL.row("Client", AB.escapeHtml(r.clientName)) +
       SHELL.row("Contact", "📞 " + AB.escapeHtml(r.phone || "—") + " · " + AB.escapeHtml(r.clientEmail)) +
@@ -88,12 +85,12 @@
       actions);
   }
 
-  function refreshAll() { refreshKpis(); renderDash(); renderAll(); renderMine(); }
-  function onViewChange(view) {
-    if (view === "dash") { refreshKpis(); renderDash(); }
-    if (view === "requests") renderAll();
-    if (view === "mine") renderMine();
+  async function onViewChange(view) {
+    if (view === "dash") { await load(); refreshKpis(); renderDash(); }
+    if (view === "requests") { await load(); renderAll(); }
+    if (view === "mine") { await load(); renderMine(); }
   }
 
-  refreshAll();
+  await load();
+  refreshKpis(); renderDash(); renderAll(); renderMine();
 })();

@@ -1,35 +1,40 @@
 /* =====================================================================
-   ARCHI_BUILDERS — Espace Administration
+   ARCHI_BUILDERS — Espace Administration (Supabase)
    ===================================================================== */
-(function () {
+(async function () {
   "use strict";
 
-  const session = SHELL.initSession("admin");
+  const session = await SHELL.initSession("admin");
   if (!session) return;
   SHELL.initMobile();
   SHELL.initModal();
   const nav = SHELL.initNav(onViewChange);
   const $ = (id) => document.getElementById(id);
 
-  const all = () => AB.getRequests();
+  let allReqs = [];
+  let profiles = [];
+  const staff = () => profiles.filter((p) => p.role === "employe" || p.role === "admin");
+  const clients = () => profiles.filter((p) => p.role === "client");
+
+  async function loadAll() {
+    allReqs = await DB.getRequests();
+    profiles = await DB.getAllProfiles();
+  }
 
   /* ----------  KPIs  ---------- */
   function refreshKpis() {
-    const r = all();
-    $("kReq").textContent = r.length;
-    $("kRev").textContent = AB.formatMoney(r.reduce((s, x) => s + (x.amount || 0), 0));
-    $("kClients").textContent = AB.getClients().length;
-    $("kEmp").textContent = AB.getEmployees().length;
+    $("kReq").textContent = allReqs.length;
+    $("kRev").textContent = AB.formatMoney(allReqs.reduce((s, x) => s + (x.amount || 0), 0));
+    $("kClients").textContent = clients().length;
+    $("kEmp").textContent = staff().length;
   }
 
-  /* ----------  Tableau des demandes (avec affectation)  ---------- */
+  /* ----------  Tableau des demandes (affectation + statut)  ---------- */
   function reqRow(r) {
-    const emps = AB.getEmployees();
     const options = "<option value=''>— Affecter —</option>" +
-      emps.map((e) => "<option value='" + AB.escapeHtml(e.name) + "'" + (r.assignedTo === e.name ? " selected" : "") + ">" + AB.escapeHtml(e.name) + "</option>").join("");
+      staff().map((e) => "<option value='" + AB.escapeHtml(e.name) + "'" + (r.assignedTo === e.name ? " selected" : "") + ">" + AB.escapeHtml(e.name) + "</option>").join("");
     const statusSel = ["new", "progress", "done", "rejected"].map((s) =>
       "<option value='" + s + "'" + (r.status === s ? " selected" : "") + ">" + AB.STATUS[s].label + "</option>").join("");
-
     return "<tr>" +
       "<td><span class='strong'>" + AB.escapeHtml(r.clientName) + "</span><br><span class='muted'>" + AB.escapeHtml(r.phone || r.clientEmail) + "</span></td>" +
       "<td>" + AB.escapeHtml(r.buildingType) + "<br><span class='muted'>" + AB.formatNumber(r.builtSurface) + " m² · " + r.percentage + "%</span></td>" +
@@ -41,42 +46,46 @@
         "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-del='" + r.id + "'>🗑</button>" +
       "</td></tr>";
   }
-
-  function tableHtml(list) {
+  function reqTable(list) {
     if (!list.length) return "<div class='empty'><div class='ic'>📭</div><p>Aucune demande.</p></div>";
     return "<div class='table-wrap'><table class='tbl'><thead><tr>" +
       "<th>Client</th><th>Projet</th><th>Montant</th><th>Affecté à</th><th>Statut</th><th>Actions</th>" +
       "</tr></thead><tbody>" + list.map(reqRow).join("") + "</tbody></table></div>";
   }
-
-  function renderDash() { $("dashTable").innerHTML = tableHtml(all().slice(0, 6)); }
+  function renderDash() { $("dashTable").innerHTML = reqTable(allReqs.slice(0, 6)); }
   function renderAll() {
     const f = $("filterStatus").value;
-    $("allTable").innerHTML = tableHtml(f ? all().filter((r) => r.status === f) : all());
+    $("allTable").innerHTML = reqTable(f ? allReqs.filter((r) => r.status === f) : allReqs);
   }
   $("filterStatus").addEventListener("change", renderAll);
 
-  /* ----------  Interactions tableau  ---------- */
-  document.addEventListener("change", (e) => {
+  /* ----------  Interactions (affectation, statut, rôles)  ---------- */
+  document.addEventListener("change", async (e) => {
     const as = e.target.closest("[data-assign]");
-    if (as) { AB.updateRequest(as.dataset.assign, { assignedTo: as.value, status: as.value ? "progress" : "new" }); refreshAll(); return; }
+    if (as) { await DB.updateRequest(as.dataset.assign, { assignedTo: as.value, status: as.value ? "progress" : "new" }); await reloadReq(); return; }
     const st = e.target.closest("[data-status]");
-    if (st) { AB.updateRequest(st.dataset.status, { status: st.value }); refreshAll(); return; }
+    if (st) { await DB.updateRequest(st.dataset.status, { status: st.value }); await reloadReq(); return; }
+    const rl = e.target.closest("[data-roleuser]");
+    if (rl) { await DB.setRole(rl.dataset.roleuser, rl.value); await reloadProfiles(); return; }
   });
 
-  document.addEventListener("click", (e) => {
+  document.addEventListener("click", async (e) => {
     const det = e.target.closest("[data-detail]");
-    if (det) { const r = all().find((x) => x.id === det.dataset.detail); if (r) showDetail(r); return; }
+    if (det) { const r = allReqs.find((x) => x.id === det.dataset.detail); if (r) showDetail(r); return; }
     const del = e.target.closest("[data-del]");
-    if (del) {
-      if (confirm("Supprimer définitivement cette demande ?")) { AB.deleteRequest(del.dataset.del); refreshAll(); }
-      return;
-    }
+    if (del) { if (confirm("Supprimer définitivement cette demande ?")) { await DB.deleteRequest(del.dataset.del); await reloadReq(); } return; }
     const delU = e.target.closest("[data-deluser]");
-    if (delU) {
-      if (confirm("Supprimer ce compte ?")) { AB.deleteUser(delU.dataset.deluser); renderEmployees(); renderClients(); refreshKpis(); }
+    if (delU) { if (confirm("Retirer ce compte ? (la personne perdra son accès)")) { await DB.deleteProfile(delU.dataset.deluser); await reloadProfiles(); } return; }
+    const saveT = e.target.closest("[data-savetitle]");
+    if (saveT) {
+      const inp = document.querySelector("[data-title='" + saveT.dataset.savetitle + "']");
+      await DB.updateProfile(saveT.dataset.savetitle, { title: inp.value.trim() });
+      saveT.textContent = "✓"; setTimeout(() => (saveT.textContent = "Enregistrer"), 1200);
     }
   });
+
+  async function reloadReq() { allReqs = await DB.getRequests(); refreshKpis(); renderDash(); renderAll(); }
+  async function reloadProfiles() { profiles = await DB.getAllProfiles(); refreshKpis(); renderTeam(); renderClients(); }
 
   function showDetail(r) {
     SHELL.openModal("Demande — " + r.clientName,
@@ -89,67 +98,60 @@
       SHELL.amountBlock(r.amount));
   }
 
-  /* ----------  Création de compte employé / admin  ---------- */
-  $("empForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const ok = $("empOk"), err = $("empErr");
-    ok.classList.remove("show"); err.classList.remove("show");
-    const res = AB.addUser({
-      name: $("eName").value.trim(),
-      title: $("eTitle").value.trim(),
-      email: $("eEmail").value.trim(),
-      phone: $("ePhone").value.trim(),
-      password: $("ePass").value,
-      role: $("eRole").value,
-    });
-    if (!res.ok) { err.textContent = res.error; err.classList.add("show"); return; }
-    ok.textContent = "✅ Compte créé pour " + res.user.name + ".";
-    ok.classList.add("show");
-    $("empForm").reset();
-    renderEmployees(); refreshKpis();
-  });
+  /* ----------  Sélecteur de rôle réutilisable  ---------- */
+  function roleSelect(p) {
+    const opts = [["client", "🏠 Client"], ["employe", "👷 Employé"], ["admin", "🏛️ Admin"]];
+    return "<select class='select' style='padding:7px 10px;font-size:.82rem' data-roleuser='" + p.id + "'>" +
+      opts.map((o) => "<option value='" + o[0] + "'" + (p.role === o[0] ? " selected" : "") + ">" + o[1] + "</option>").join("") +
+      "</select>";
+  }
 
-  function renderEmployees() {
-    const list = AB.getUsers().filter((u) => u.role === "employe" || u.role === "admin");
-    $("empTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
-      "<th>Nom</th><th>Fonction</th><th>Rôle</th><th>Contact</th><th></th></tr></thead><tbody>" +
-      list.map((u) => "<tr>" +
-        "<td class='strong'>" + AB.escapeHtml(u.name) + "</td>" +
-        "<td>" + AB.escapeHtml(u.title || "—") + "</td>" +
-        "<td>" + (u.role === "admin" ? "🏛️ Admin" : "👷 Employé") + "</td>" +
-        "<td><span class='muted'>" + AB.escapeHtml(u.email) + "<br>" + AB.escapeHtml(u.phone || "") + "</span></td>" +
-        "<td>" + (u.id === session.id ? "<span class='muted'>vous</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + u.id + "'>🗑</button>") + "</td>" +
-        "</tr>").join("") +
+  /* ----------  Équipe (employés & admins)  ---------- */
+  function renderTeam() {
+    const list = staff();
+    let html = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
+      "<th>Nom</th><th>Fonction</th><th>Rôle</th><th>Contact</th><th></th></tr></thead><tbody>";
+    html += list.map((u) =>
+      "<tr>" +
+      "<td class='strong'>" + AB.escapeHtml(u.name || "—") + "</td>" +
+      "<td><div style='display:flex;gap:6px'><input class='input' style='padding:7px 10px;font-size:.82rem' data-title='" + u.id + "' value='" + AB.escapeHtml(u.title || "") + "' placeholder='Ex. Architecte' />" +
+        "<button class='btn btn--outline btn--sm' data-savetitle='" + u.id + "'>Enregistrer</button></div></td>" +
+      "<td>" + roleSelect(u) + "</td>" +
+      "<td><span class='muted'>" + AB.escapeHtml(u.email || "") + "<br>" + AB.escapeHtml(u.phone || "") + "</span></td>" +
+      "<td>" + (u.id === session.id ? "<span class='muted'>vous</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + u.id + "'>🗑</button>") + "</td>" +
+      "</tr>").join("");
+    html += "</tbody></table></div>";
+    if (!list.length) html = "<div class='empty'><div class='ic'>👷</div><p>Aucun membre d'équipe pour l'instant.</p></div>";
+    $("empTable").innerHTML = html;
+  }
+
+  /* ----------  Clients  ---------- */
+  function renderClients() {
+    const list = clients();
+    if (!list.length) { $("clientTable").innerHTML = "<div class='empty'><div class='ic'>🧑</div><p>Aucun client inscrit.</p></div>"; return; }
+    $("clientTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
+      "<th>Nom</th><th>E-mail</th><th>Téléphone</th><th>Demandes</th><th>Rôle</th><th></th></tr></thead><tbody>" +
+      list.map((c) => {
+        const n = allReqs.filter((r) => (r.clientEmail || "").toLowerCase() === (c.email || "").toLowerCase()).length;
+        return "<tr>" +
+          "<td class='strong'>" + AB.escapeHtml(c.name || "—") + "</td>" +
+          "<td>" + AB.escapeHtml(c.email || "") + "</td>" +
+          "<td>" + AB.escapeHtml(c.phone || "—") + "</td>" +
+          "<td>" + n + "</td>" +
+          "<td>" + roleSelect(c) + "</td>" +
+          "<td><button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + c.id + "'>🗑</button></td>" +
+          "</tr>";
+      }).join("") +
       "</tbody></table></div>";
   }
 
-  function renderClients() {
-    const clients = AB.getClients();
-    $("clientTable").innerHTML = !clients.length
-      ? "<div class='empty'><div class='ic'>🧑</div><p>Aucun client inscrit.</p></div>"
-      : "<div class='table-wrap'><table class='tbl'><thead><tr>" +
-        "<th>Nom</th><th>E-mail</th><th>Téléphone</th><th>Demandes</th><th>Inscrit le</th><th></th></tr></thead><tbody>" +
-        clients.map((c) => {
-          const n = AB.getRequestsByEmail(c.email).length;
-          return "<tr>" +
-            "<td class='strong'>" + AB.escapeHtml(c.name) + "</td>" +
-            "<td>" + AB.escapeHtml(c.email) + "</td>" +
-            "<td>" + AB.escapeHtml(c.phone || "—") + "</td>" +
-            "<td>" + n + "</td>" +
-            "<td class='muted'>" + AB.formatDate(c.createdAt) + "</td>" +
-            "<td><button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + c.id + "'>🗑</button></td>" +
-            "</tr>";
-        }).join("") +
-        "</tbody></table></div>";
+  async function onViewChange(view) {
+    if (view === "dash") { await loadAll(); refreshKpis(); renderDash(); }
+    if (view === "requests") { allReqs = await DB.getRequests(); renderAll(); }
+    if (view === "employees") { profiles = await DB.getAllProfiles(); renderTeam(); }
+    if (view === "clients") { await loadAll(); renderClients(); }
   }
 
-  function refreshAll() { refreshKpis(); renderDash(); renderAll(); }
-  function onViewChange(view) {
-    if (view === "dash") { refreshKpis(); renderDash(); }
-    if (view === "requests") renderAll();
-    if (view === "employees") renderEmployees();
-    if (view === "clients") renderClients();
-  }
-
-  refreshAll();
+  await loadAll();
+  refreshKpis(); renderDash(); renderAll(); renderTeam(); renderClients();
 })();
