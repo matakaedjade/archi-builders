@@ -170,11 +170,35 @@ window.DB = (function () {
     return { ok: !error, error: error && error.message };
   }
 
+  /* ----------  Notes / évaluations des employés  ---------- */
+  function rowToRating(r) {
+    return { id: r.id, employeeId: r.employee_id, employeeName: r.employee_name,
+             requestId: r.request_id, projectLabel: r.project_label, score: r.score,
+             comment: r.comment, ratedBy: r.rated_by, createdAt: r.created_at };
+  }
+  // RLS : un employé voit ses notes ; la direction voit toutes les notes.
+  async function getRatings() {
+    const { data, error } = await sb.from("ratings").select("*").order("created_at", { ascending: false });
+    if (error) { console.error(error); return []; }
+    return data.map(rowToRating);
+  }
+  async function rateEmployee(o) {
+    const prof = await currentProfile();
+    const row = {
+      employee_id: o.employeeId, employee_name: o.employeeName, request_id: o.requestId,
+      project_label: o.projectLabel, score: o.score, comment: o.comment || null,
+      rated_by: prof ? prof.name : "",
+    };
+    const { error } = await sb.from("ratings").upsert(row, { onConflict: "employee_id,request_id" });
+    return { ok: !error, error: error && error.message };
+  }
+
   return {
     currentUser, currentProfile, clearCache,
     getStaff, getEmployees, getClients, getAllProfiles, updateProfile, setRole, deleteProfile,
     getRequests, getRequestById, addRequest, updateRequest, deleteRequest,
     uploadPlan, signedUrl,
     getReports, addReport, deleteReport,
+    getRatings, rateEmployee,
   };
 })();

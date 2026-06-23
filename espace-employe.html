@@ -24,6 +24,7 @@
         <a data-view="mine"><span class="ic">👤</span> Mes dossiers</a>
         <a data-view="colleagues"><span class="ic">👥</span> Collègues</a>
         <a data-view="reports"><span class="ic">📝</span> Mes rapports</a>
+        <a data-view="evaluations"><span class="ic">⭐</span> Mes évaluations</a>
         <a data-view="org"><span class="ic">🏛️</span> Organigramme</a>
         <a href="index.html"><span class="ic">↩</span> Voir le site</a>
       </nav>
@@ -82,6 +83,15 @@
           <div class="panel">
             <div class="panel__head"><div><h2>Mes dossiers</h2><p>Les demandes qui vous sont affectées.</p></div></div>
             <div id="mineTable"></div>
+          </div>
+        </section>
+
+        <!-- MES ÉVALUATIONS -->
+        <section data-view="evaluations" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Mes évaluations</h2><p>Vos notes par projet, attribuées par la direction (DG / DT). Confidentiel.</p></div></div>
+            <div id="myRatingGlobal" style="margin-bottom:18px"></div>
+            <div id="myRatingsTable"></div>
           </div>
         </section>
 

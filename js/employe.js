@@ -153,6 +153,28 @@
       "<div style='margin-top:14px;white-space:pre-wrap'>" + AB.escapeHtml(r.content) + "</div>");
   });
 
+  /* ----------  Mes évaluations (notes de la direction)  ---------- */
+  async function renderEvaluations() {
+    const ratings = await DB.getRatings();
+    const scores = ratings.map((x) => x.score);
+    $("myRatingGlobal").innerHTML =
+      "<div style='padding:18px;background:var(--green-100);border-radius:12px'>" +
+      "<div class='muted' style='font-size:.8rem;letter-spacing:.1em;text-transform:uppercase'>Note globale</div>" +
+      "<div style='font-size:1.3rem;margin-top:4px'>" + SHELL.starsHtml(scores) + "</div></div>";
+    if (!ratings.length) { $("myRatingsTable").innerHTML = "<div class='empty'><div class='ic'>⭐</div><p>Aucune note pour le moment. Vos notes apparaîtront ici après évaluation par la direction.</p></div>"; return; }
+    $("myRatingsTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
+      "<th>Projet</th><th>Note</th><th>Commentaire</th><th>Par</th><th>Date</th></tr></thead><tbody>" +
+      ratings.map((r) =>
+        "<tr>" +
+        "<td class='strong'>" + AB.escapeHtml(r.projectLabel || "Projet") + "</td>" +
+        "<td><b>" + (r.score != null ? r.score + "/10" : "—") + "</b></td>" +
+        "<td>" + AB.escapeHtml(r.comment || "—") + "</td>" +
+        "<td class='muted'>" + AB.escapeHtml(r.ratedBy || "Direction") + "</td>" +
+        "<td class='muted'>" + AB.formatDate(r.createdAt) + "</td>" +
+        "</tr>").join("") +
+      "</tbody></table></div>";
+  }
+
   /* ----------  Orchestration  ---------- */
   async function onViewChange(view) {
     if (view === "dash") { await load(); refreshKpis(); renderDash(); }
@@ -160,6 +182,7 @@
     if (view === "mine") { await load(); renderMine(); }
     if (view === "colleagues") renderColleagues();
     if (view === "reports") loadReports();
+    if (view === "evaluations") renderEvaluations();
     if (view === "org") { document.getElementById("orgWrap").innerHTML = SHELL.orgChartHtml(await DB.getStaff()); }
   }
 

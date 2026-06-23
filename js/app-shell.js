@@ -9,7 +9,8 @@ window.SHELL = (function () {
     dash: "Tableau de bord", new: "Nouvelle conception", requests: "Demandes",
     mine: "Mes dossiers", projets: "Projets réalisés", contact: "Contact",
     colleagues: "Collègues", supervision: "Supervision", reports: "Rapports",
-    org: "Organigramme", employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
+    evaluations: "Mes évaluations", org: "Organigramme",
+    employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
   };
 
   async function initSession(role) {
@@ -224,6 +225,18 @@ window.SHELL = (function () {
     setTimeout(() => { win.focus(); win.print(); }, 350);
   }
 
+  /* ----------  Note globale en étoiles (à partir de scores /10)  ---------- */
+  function starsHtml(scores) {
+    if (!scores || !scores.length) return "<span class='muted'>Pas encore noté</span>";
+    const avg10 = scores.reduce((a, b) => a + (b || 0), 0) / scores.length;
+    const s5 = avg10 / 2;                 // échelle 0 à 5
+    const full = Math.round(s5);
+    let st = "";
+    for (let i = 1; i <= 5; i++) st += (i <= full ? "★" : "☆");
+    return "<span style='color:#d4a017;letter-spacing:2px;font-size:1.05rem'>" + st + "</span> " +
+      "<span class='muted'>(" + s5.toFixed(1) + "/5 · moy. " + avg10.toFixed(1) + "/10 sur " + scores.length + " projet(s))</span>";
+  }
+
   return { initSession, initNav, initMobile, initModal, openModal, closeModal,
-           badge, row, amountBlock, filesHtml, briefRows, orgChartHtml, printRequest, VIEW_TITLES };
+           badge, row, amountBlock, filesHtml, briefRows, orgChartHtml, printRequest, starsHtml, VIEW_TITLES };
 })();

@@ -23,11 +23,14 @@
   const roleEl = document.querySelector(".who .meta span");
   if (roleEl) roleEl.textContent = session.department ? AB.deptLabel(session.department) : "Administrateur";
 
+  let allRatings = [];
   async function loadAll() {
     allReqs = await DB.getRequests();
     profiles = await DB.getAllProfiles();
     allReports = await DB.getReports();
+    allRatings = await DB.getRatings();
   }
+  const empScores = (empId) => allRatings.filter((x) => x.employeeId === empId).map((x) => x.score);
 
   /* ----------  KPIs  ---------- */
   function refreshKpis() {
@@ -98,6 +101,22 @@
   document.addEventListener("click", async (e) => {
     const pr = e.target.closest("[data-printreq]");
     if (pr) { const r = allReqs.find((x) => x.id === pr.dataset.printreq); if (r) SHELL.printRequest(r); return; }
+    const rate = e.target.closest("[data-rateemp]");
+    if (rate) {
+      const sc = document.getElementById("rateScore").value;
+      if (sc === "") { alert("Choisissez une note de 0 à 10."); return; }
+      rate.disabled = true; rate.textContent = "⏳…";
+      const res = await DB.rateEmployee({
+        employeeId: rate.dataset.rateemp, employeeName: rate.dataset.ratename,
+        requestId: rate.dataset.ratereq, projectLabel: rate.dataset.ratelabel,
+        score: +sc, comment: document.getElementById("rateComment").value.trim(),
+      });
+      if (!res.ok) { rate.disabled = false; rate.textContent = "Enregistrer la note"; alert("Erreur : " + (res.error || "")); return; }
+      rate.textContent = "✓ Note enregistrée";
+      allRatings = await DB.getRatings();
+      renderTeam();
+      return;
+    }
     const det = e.target.closest("[data-detail]");
     if (det) { const r = allReqs.find((x) => x.id === det.dataset.detail); if (r) showDetail(r); return; }
     const del = e.target.closest("[data-del]");
@@ -115,6 +134,21 @@
   async function reloadReq() { allReqs = await DB.getRequests(); refreshKpis(); renderDash(); renderAll(); }
   async function reloadProfiles() { profiles = await DB.getAllProfiles(); refreshKpis(); renderTeam(); renderClients(); }
 
+  function ratingBlock(r) {
+    const emp = profiles.find((p) => p.name === r.assignedTo && (p.role === "employe" || p.role === "admin"));
+    if (!emp) return "<div style='margin-top:14px;padding:12px;background:var(--bg-soft);border-radius:10px' class='muted'>Affectez ce dossier à un employé pour pouvoir le noter.</div>";
+    const existing = allRatings.find((x) => x.requestId === r.id && x.employeeId === emp.id);
+    const opts = ["<option value=''>Note…</option>"].concat(
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => "<option value='" + n + "'" + (existing && existing.score === n ? " selected" : "") + ">" + n + "/10</option>")
+    ).join("");
+    return "<div style='margin-top:16px;padding:14px;background:var(--green-100);border-radius:10px'>" +
+      "<b>Évaluer le travail de " + esc(emp.name) + " sur ce projet</b>" +
+      "<div style='display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap'>" +
+      "<select class='select' id='rateScore' style='max-width:110px'>" + opts + "</select>" +
+      "<input class='input' id='rateComment' placeholder='Commentaire (optionnel)' value='" + esc(existing ? (existing.comment || "") : "") + "' style='flex:1;min-width:160px'>" +
+      "<button class='btn btn--gold btn--sm' data-rateemp='" + emp.id + "' data-ratereq='" + r.id + "' data-ratename='" + esc(emp.name) + "' data-ratelabel='" + esc(r.buildingType || "Projet") + "'>Enregistrer la note</button>" +
+      "</div><div class='muted' style='margin-top:6px;font-size:.8rem'>🔒 Visible uniquement par l'employé concerné et la direction (DG/DT).</div></div>";
+  }
   function showDetail(r) {
     SHELL.openModal("Demande — " + r.clientName,
       SHELL.row("Client", esc(r.clientName)) +
@@ -124,6 +158,7 @@
       SHELL.row("Affecté à", r.assignedTo ? esc(r.assignedTo) : "—") +
       SHELL.row("Date", AB.formatDate(r.createdAt)) +
       SHELL.amountBlock(r.amount) +
+      ratingBlock(r) +
       "<div style='margin-top:14px;text-align:center'><button class='btn btn--outline btn--sm' data-printreq='" + r.id + "'>📄 Télécharger le détail (PDF)</button></div>");
   }
 
@@ -132,12 +167,13 @@
     const list = staff();
     if (!list.length) { $("empTable").innerHTML = "<div class='empty'><div class='ic'>👷</div><p>Aucun membre d'équipe. Promouvez un client depuis l'onglet « Clients ».</p></div>"; return; }
     $("empTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
-      "<th>Nom</th><th>Rôle</th><th>Métier</th><th>Contact</th><th></th></tr></thead><tbody>" +
+      "<th>Nom</th><th>Rôle</th><th>Métier</th><th>Note globale</th><th>Contact</th><th></th></tr></thead><tbody>" +
       list.map((u) =>
         "<tr>" +
         "<td class='strong'>" + esc(u.name || "—") + "</td>" +
         "<td>" + roleSelect(u) + "</td>" +
         "<td>" + deptSelect(u) + "</td>" +
+        "<td style='font-size:.82rem'>" + SHELL.starsHtml(empScores(u.id)) + "</td>" +
         "<td><span class='muted'>" + esc(u.email || "") + "<br>" + esc(u.phone || "") + "</span></td>" +
         "<td>" + (u.id === session.id ? "<span class='muted'>vous</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + u.id + "'>🗑</button>") + "</td>" +
         "</tr>").join("") +
