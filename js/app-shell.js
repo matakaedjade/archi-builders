@@ -166,6 +166,64 @@ window.SHELL = (function () {
     return html;
   }
 
+  /* ----------  Téléchargement / impression du détail d'une demande  ---------- */
+  function printRequest(r) {
+    const esc = AB.escapeHtml;
+    const prog = [];
+    const add = (n, w) => { if (n) prog.push(n + " " + w); };
+    add(r.rooms, "chambre(s)"); add(r.bathrooms, "SDB"); add(r.livings, "salon(s)");
+    add(r.diningrooms, "salle(s) à manger"); add(r.kitchens, "cuisine(s)"); add(r.offices, "bureau(x)");
+    add(r.dressings, "dressing(s)"); add(r.parking, "parking(s)"); add(r.storerooms, "magasin(s)");
+    const line = (k, v) => "<tr><td class='k'>" + k + "</td><td class='v'>" + (v || "—") + "</td></tr>";
+    const win = window.open("", "_blank");
+    if (!win) { alert("Autorisez les fenêtres pop-up pour télécharger le détail."); return; }
+    win.document.write(
+      "<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'><title>Demande — " + esc(r.clientName || "") + "</title>" +
+      "<style>" +
+      "body{font-family:Arial,Helvetica,sans-serif;color:#16201b;max-width:720px;margin:24px auto;padding:0 20px}" +
+      "h1{color:#1b5e3b;margin:0} .brand{font-size:26px;font-weight:800;letter-spacing:1px}" +
+      ".brand .g{color:#d4a017} .sub{color:#666;margin:2px 0 18px;border-bottom:2px solid #d4a017;padding-bottom:12px}" +
+      "table{width:100%;border-collapse:collapse;margin-top:10px} td{padding:7px 10px;border-bottom:1px solid #eee;vertical-align:top}" +
+      ".k{color:#666;width:42%} .v{font-weight:600}" +
+      ".amt{margin-top:18px;background:#e7f0ea;border-radius:10px;padding:16px;text-align:center}" +
+      ".amt b{font-size:24px;color:#1b5e3b} .foot{margin-top:24px;color:#888;font-size:12px;text-align:center}" +
+      "@media print{.noprint{display:none}}" +
+      "</style></head><body>" +
+      "<div class='brand'>ARCHI<span class='g'>_BUILDERS</span></div>" +
+      "<div class='sub'>Architecture &bull; BTP — Détail de la demande de conception</div>" +
+      "<h1 style='font-size:18px'>" + esc(r.buildingType || "Projet") + "</h1>" +
+      "<table>" +
+      line("Client", esc(r.clientName)) +
+      line("Contact", esc((r.phone || "—") + " · " + (r.clientEmail || ""))) +
+      line("Statut", (AB.STATUS[r.status] || AB.STATUS.new).label) +
+      line("Nature du projet", esc(r.nature)) +
+      line("Usage prévu", esc(r.usage)) +
+      line("Type de bâtiment", esc(r.buildingType)) +
+      line("Style", esc(r.style)) +
+      line("Niveaux", (r.levels || 1) + " niveau(x)") +
+      line("Programme", prog.length ? prog.join(" · ") : "—") +
+      line("Équipements", (r.extras && r.extras.length) ? esc(r.extras.join(", ")) : "—") +
+      line("Autres locaux", esc(r.otherRooms)) +
+      line("Surface du terrain", AB.formatNumber(r.terrainSurface) + " m²") +
+      line("Emprise au sol", (r.percentage || 0) + " %") +
+      line("Surface à concevoir", AB.formatNumber(r.builtSurface) + " m²") +
+      line("Localisation", esc(r.location)) +
+      line("Topographie", esc(r.topography)) +
+      line("Orientation", esc(r.orientation)) +
+      line("Budget estimé", esc(r.budget)) +
+      line("Délai souhaité", esc(r.deadline)) +
+      line("Affecté à", esc(r.assignedTo)) +
+      line("Date", AB.formatDate(r.createdAt)) +
+      (r.notes ? line("Précisions", esc(r.notes).replace(/\n/g, "<br>")) : "") +
+      "</table>" +
+      "<div class='amt'><div>MONTANT DE LA CONCEPTION</div><b>" + AB.formatMoney(r.amount) + "</b></div>" +
+      "<div class='foot'>ARCHI_BUILDERS — Lomé, Togo · +228 91 08 92 94 · archi-builders@gmail.com</div>" +
+      "<div class='noprint' style='text-align:center;margin-top:20px'><button onclick='window.print()' style='padding:10px 20px;font-size:15px;cursor:pointer'>🖨️ Imprimer / Enregistrer en PDF</button></div>" +
+      "</body></html>");
+    win.document.close();
+    setTimeout(() => { win.focus(); win.print(); }, 350);
+  }
+
   return { initSession, initNav, initMobile, initModal, openModal, closeModal,
-           badge, row, amountBlock, filesHtml, briefRows, orgChartHtml, VIEW_TITLES };
+           badge, row, amountBlock, filesHtml, briefRows, orgChartHtml, printRequest, VIEW_TITLES };
 })();

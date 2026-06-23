@@ -144,6 +144,22 @@
                     <option value="6">R+5 et plus</option>
                   </select>
                 </div>
+                <div class="field">
+                  <label for="formule">Formule de prestation souhaitée</label>
+                  <select class="select" id="formule">
+                    <option value="plans2d">Plans 2D uniquement — 250 FCFA/m²/niveau</option>
+                    <option value="plans3d" selected>Plans 2D + images 3D extérieures — 500 FCFA/m²/niveau</option>
+                    <option value="video">Plans + 3D + vidéo d'animation — 750 FCFA/m²/niveau</option>
+                    <option value="complet">Pack complet + permis de construire — 1 500 FCFA/m²/niveau</option>
+                  </select>
+                  <span class="hint">Le tarif au m² dépend des documents souhaités, multiplié par le nombre de niveaux.</span>
+                </div>
+                <div class="field">
+                  <label style="font-weight:500"><input type="checkbox" id="suivi" style="width:16px;height:16px;vertical-align:-3px;accent-color:var(--green-700)" /> Je souhaite aussi le <b>suivi des travaux</b></label>
+                  <div class="hint" id="suiviNote" style="display:none;margin-top:8px;color:var(--green-800);background:var(--green-100);padding:11px 13px;border-radius:8px;line-height:1.6">
+                    ℹ️ Le <b>suivi des travaux</b> est facturé entre <b>5 % et 10 % du budget des travaux</b>. Le montant exact vous sera communiqué après étude (il dépend du budget de réalisation du projet, non connu à ce stade).
+                  </div>
+                </div>
 
                 <!-- PARTIE 2 : Le terrain -->
                 <h4 class="form-step"><span class="n">2</span> Le terrain</h4>
@@ -286,13 +302,17 @@
               <h3>Estimation en direct</h3>
               <div class="line"><span>Surface du terrain</span><b id="sTerrain">— m²</b></div>
               <div class="line"><span>Emprise au sol</span><b id="sPct">60 %</b></div>
-              <div class="line"><span>Surface à concevoir</span><b id="sBuilt">— m²</b></div>
-              <div class="line"><span>Prix au m²</span><b id="sRate">1 500 FCFA</b></div>
+              <div class="line"><span>Surface au sol</span><b id="sFootprint">— m²</b></div>
+              <div class="line"><span>Niveaux</span><b id="sLevels">1</b></div>
+              <div class="line"><span>Surface totale à concevoir</span><b id="sBuilt">— m²</b></div>
+              <div class="line"><span>Formule</span><b id="sFormule" style="text-align:right;max-width:55%">—</b></div>
+              <div class="line"><span>Tarif au m²</span><b id="sRate">500 FCFA</b></div>
               <div class="total">
                 <small>MONTANT DE LA CONCEPTION</small>
                 <div class="amount" id="sAmount">0 FCFA</div>
               </div>
-              <p class="note">Estimation calculée sur la base de 1&nbsp;500&nbsp;FCFA/m² de surface construite. Le montant définitif est confirmé après étude par nos architectes.</p>
+              <p class="note" id="sSuiviNote" style="display:none">+ Suivi des travaux : 5 à 10 % du budget des travaux (montant communiqué après étude).</p>
+              <p class="note">Montant = surface au sol × niveaux × tarif de la formule. Le montant définitif est confirmé après étude par nos architectes.</p>
             </aside>
           </div>
         </section>

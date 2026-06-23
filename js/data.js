@@ -23,12 +23,24 @@ window.AB = (function () {
     String(s ?? "").replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  function computeQuote(terrainSurface, percentage) {
+  /* ----------  Formules de prestation (tarif au m²)  ---------- */
+  const FORMULES = {
+    plans2d: { label: "Plans 2D uniquement", rate: 250 },
+    plans3d: { label: "Plans 2D + images 3D extérieures", rate: 500 },
+    video:   { label: "Plans + 3D + vidéo d'animation", rate: 750 },
+    complet: { label: "Pack complet + permis de construire", rate: 1500 },
+  };
+
+  // montant = surface au sol × nombre de niveaux × tarif (selon la formule)
+  function computeQuote(terrainSurface, percentage, rate, levels) {
     const t = Math.max(0, Number(terrainSurface) || 0);
     const p = Math.max(0, Number(percentage) || 0);
-    const builtSurface = t * (p / 100);
-    const amount = builtSurface * PRICE_PER_SQM;
-    return { builtSurface, amount, pricePerSqm: PRICE_PER_SQM };
+    const lv = Math.max(1, Number(levels) || 1);
+    const r = Number(rate) || PRICE_PER_SQM;
+    const footprint = t * (p / 100);          // emprise au sol
+    const builtSurface = footprint * lv;       // surface totale à concevoir
+    const amount = builtSurface * r;
+    return { footprint, builtSurface, levels: lv, amount, pricePerSqm: r };
   }
 
   const STATUS = {
@@ -58,18 +70,25 @@ window.AB = (function () {
     chauffeur: "Chauffeur",
     entretien: "Agent d'entretien",
     securite: "Agent de sécurité",
-    dg: "Directeur Général",
-    dt: "Directeur Technique",
+    communication: "Chargé(e) de communication",
+    pdg: "Président Directeur Général (PDG)",
+    dg: "Directeur Général (DG)",
+    dga: "Directeur Général Adjoint (DGA)",
+    dt: "Directeur Technique (DT)",
+    daf: "Directeur Administratif & Financier (DAF)",
+    drh: "Directeur des Ressources Humaines (DRH)",
+    dco: "Directeur Commercial & Marketing",
+    dop: "Directeur des Opérations / Travaux",
     direction: "Direction",
   };
   const EMPLOYEE_DEPTS = ["architecte", "ingenieur", "technicien", "dessinateur", "chef_chantier",
-    "conducteur", "metreur", "comptable", "caissier", "juriste", "rh", "commercial",
+    "conducteur", "metreur", "comptable", "caissier", "juriste", "rh", "commercial", "communication",
     "secretaire", "magasinier", "logistique", "chauffeur", "entretien", "securite"];
-  const ADMIN_DEPTS = ["dg", "dt", "direction"];
+  const ADMIN_DEPTS = ["pdg", "dg", "dga", "dt", "daf", "drh", "dco", "dop", "direction"];
   const CONCEPTION_DEPTS = ["architecte", "ingenieur", "technicien", "dessinateur", "metreur"];
   const deptLabel = (d) => DEPARTMENTS[d] || (d || "—");
 
-  return { PRICE_PER_SQM, CURRENCY, STATUS,
+  return { PRICE_PER_SQM, CURRENCY, STATUS, FORMULES,
            DEPARTMENTS, EMPLOYEE_DEPTS, ADMIN_DEPTS, CONCEPTION_DEPTS, deptLabel,
            formatMoney, formatNumber, formatDate, escapeHtml, computeQuote };
 })();

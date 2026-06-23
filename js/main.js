@@ -90,17 +90,24 @@
   /* ----------  Mini-calculateur d'accueil  ---------- */
   const mTerrain = document.getElementById("mTerrain");
   const mPct = document.getElementById("mPct");
+  const mFormule = document.getElementById("mFormule");
+  const mLevels = document.getElementById("mLevels");
   const mBuilt = document.getElementById("mBuilt");
   const mAmount = document.getElementById("mAmount");
   function recalc() {
     if (!mTerrain || !mPct) return;
-    const q = AB.computeQuote(mTerrain.value, mPct.value);
+    const f = (AB.FORMULES && mFormule) ? (AB.FORMULES[mFormule.value] || {}) : {};
+    const rate = f.rate || AB.PRICE_PER_SQM;
+    const levels = mLevels ? (+mLevels.value || 1) : 1;
+    const q = AB.computeQuote(mTerrain.value, mPct.value, rate, levels);
     mBuilt.textContent = AB.formatNumber(q.builtSurface) + " m²";
     mAmount.textContent = AB.formatMoney(q.amount);
   }
   if (mTerrain && mPct) {
     mTerrain.addEventListener("input", recalc);
     mPct.addEventListener("change", recalc);
+    if (mFormule) mFormule.addEventListener("change", recalc);
+    if (mLevels) mLevels.addEventListener("change", recalc);
     recalc();
   }
 })();

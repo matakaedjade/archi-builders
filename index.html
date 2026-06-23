@@ -200,7 +200,7 @@
     <div class="container about">
       <div class="about__media reveal">
         <img src="assets/images/render-interior.jpg" alt="Intérieur conçu par ARCHI_BUILDERS" loading="lazy" />
-        <div class="about__badge"><b>1500</b>FCFA / m² de conception</div>
+        <div class="about__badge"><b>dès 250</b>FCFA / m² de conception</div>
       </div>
       <div class="about__text reveal" data-d="1">
         <span class="eyebrow">Qui sommes-nous</span>
@@ -241,7 +241,7 @@
       <div class="reveal">
         <span class="eyebrow" style="color:var(--gold-400)">Estimation en ligne</span>
         <h2>Combien coûte la conception de votre projet&nbsp;?</h2>
-        <p>Indiquez la surface de votre terrain et la part que vous souhaitez construire. Le montant de la conception se calcule instantanément, sur la base de <b>1&nbsp;500&nbsp;FCFA le m²</b>. Pour déposer vos plans et finaliser, créez votre espace client.</p>
+        <p>Indiquez la surface de votre terrain, l'emprise au sol, la formule souhaitée et le nombre de niveaux : le montant de la conception se calcule instantanément (<b>de 250 à 1&nbsp;500&nbsp;FCFA/m²/niveau</b> selon la formule). Pour déposer vos plans et finaliser, créez votre espace client.</p>
         <a href="portail.html" class="btn btn--gold">Accéder à l'espace client</a>
       </div>
       <div class="mini-calc reveal" data-d="1">
@@ -263,6 +263,25 @@
             <option value="80">80 %</option>
             <option value="90">90 %</option>
             <option value="100">100 % (toute la surface)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mFormule">Formule de prestation</label>
+          <select class="select" id="mFormule">
+            <option value="plans2d">Plans 2D — 250 FCFA/m²/niveau</option>
+            <option value="plans3d" selected>Plans + 3D extérieur — 500 FCFA/m²/niveau</option>
+            <option value="video">Plans + 3D + vidéo — 750 FCFA/m²/niveau</option>
+            <option value="complet">Pack complet + permis — 1 500 FCFA/m²/niveau</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mLevels">Nombre de niveaux</label>
+          <select class="select" id="mLevels">
+            <option value="1">Plain-pied (1)</option>
+            <option value="2">R+1 (2)</option>
+            <option value="3">R+2 (3)</option>
+            <option value="4">R+3 (4)</option>
+            <option value="6">R+5 et plus</option>
           </select>
         </div>
         <div class="result">

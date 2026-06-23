@@ -55,6 +55,8 @@
 
   /* ----------  Détail + actions sur les dossiers  ---------- */
   document.addEventListener("click", async (e) => {
+    const pr = e.target.closest("[data-printreq]");
+    if (pr) { const r = allReqs.find((x) => x.id === pr.dataset.printreq); if (r) SHELL.printRequest(r); return; }
     const d = e.target.closest("[data-detail]");
     if (d) { const r = allReqs.find((x) => x.id === d.dataset.detail); if (r) showDetail(r); return; }
     const act = e.target.closest("[data-act]");
@@ -85,6 +87,7 @@
       SHELL.row("Affecté à", r.assignedTo ? AB.escapeHtml(r.assignedTo) : "—") +
       SHELL.row("Date", AB.formatDate(r.createdAt)) +
       SHELL.amountBlock(r.amount) +
+      "<div style='margin-top:14px;text-align:center'><button class='btn btn--outline btn--sm' data-printreq='" + r.id + "'>📄 Télécharger le détail (PDF)</button></div>" +
       actions);
   }
 

@@ -16,13 +16,19 @@
   let myReqs = [];
 
   /* ==========  ESTIMATION EN DIRECT  ========== */
+  const currentFormule = () => AB.FORMULES[$("formule").value] || AB.FORMULES.complet;
   function recalc() {
     const terrain = $("terrain").value;
-    const q = AB.computeQuote(terrain, percentage);
+    const levels = +$("levels").value || 1;
+    const f = currentFormule();
+    const q = AB.computeQuote(terrain, percentage, f.rate, levels);
     $("sTerrain").textContent = terrain ? AB.formatNumber(terrain) + " m²" : "— m²";
     $("sPct").textContent = percentage + " %";
+    $("sFootprint").textContent = q.footprint ? AB.formatNumber(q.footprint) + " m²" : "— m²";
+    $("sLevels").textContent = levels;
     $("sBuilt").textContent = q.builtSurface ? AB.formatNumber(q.builtSurface) + " m²" : "— m²";
-    $("sRate").textContent = AB.formatMoney(AB.PRICE_PER_SQM);
+    $("sFormule").textContent = f.label;
+    $("sRate").textContent = AB.formatMoney(f.rate);
     $("sAmount").textContent = AB.formatMoney(q.amount);
   }
   $("pctGrid").addEventListener("click", (e) => {
@@ -33,6 +39,13 @@
     recalc();
   });
   $("terrain").addEventListener("input", recalc);
+  $("formule").addEventListener("change", recalc);
+  $("levels").addEventListener("change", recalc);
+  $("suivi").addEventListener("change", () => {
+    const on = $("suivi").checked;
+    $("suiviNote").style.display = on ? "block" : "none";
+    $("sSuiviNote").style.display = on ? "block" : "none";
+  });
 
   /* ==========  CHAMPS « AUTRE » CONDITIONNELS  ========== */
   document.querySelectorAll("select[data-other]").forEach((sel) => {
@@ -71,7 +84,16 @@
     const btn = $("conceptForm").querySelector("button[type=submit]");
     btn.disabled = true; const oldLabel = btn.textContent; btn.textContent = "⏳ Envoi en cours…";
 
-    const q = AB.computeQuote(terrain, percentage);
+    const levels = +$("levels").value || 1;
+    const f = currentFormule();
+    const q = AB.computeQuote(terrain, percentage, f.rate, levels);
+
+    // On consigne la formule + le suivi dans les précisions (visibles par l'architecte)
+    let notesFull = "📋 Formule : " + f.label + " (" + AB.formatMoney(f.rate) + "/m²/niveau)";
+    if ($("suivi").checked) notesFull += "\n🏗️ Suivi des travaux : SOUHAITÉ — à chiffrer (5 à 10 % du budget des travaux).";
+    const userNotes = $("notes").value.trim();
+    if (userNotes) notesFull += "\n\n" + userNotes;
+
     let attached = [];
     try {
       if (fileObjs.terrain) attached.push(await DB.uploadPlan(fileObjs.terrain, "Plan parcellaire du terrain"));
@@ -85,7 +107,7 @@
       clientName: session.name, clientEmail: session.email, phone: session.phone || "",
       nature: resolve("nature", "natureOther"), usage: $("usage").value,
       buildingType: resolve("btype", "btypeOther"), style: resolve("style", "styleOther"),
-      levels: +$("levels").value || 1, rooms: +$("rooms").value || 0, bathrooms: +$("bathrooms").value || 0,
+      levels: levels, rooms: +$("rooms").value || 0, bathrooms: +$("bathrooms").value || 0,
       livings: +$("livings").value || 0, diningrooms: +$("diningrooms").value || 0, kitchens: +$("kitchens").value || 0,
       offices: +$("offices").value || 0, dressings: +$("dressings").value || 0, parking: +$("parking").value || 0,
       storerooms: +$("storerooms").value || 0,
@@ -94,7 +116,7 @@
       topography: $("topography").value, orientation: $("orientation").value,
       budget: $("budget").value, deadline: $("deadline").value,
       terrainSurface: terrain, percentage, builtSurface: q.builtSurface, amount: q.amount,
-      notes: $("notes").value.trim(), files: attached,
+      notes: notesFull, files: attached,
     });
 
     btn.disabled = false; btn.textContent = oldLabel;
@@ -109,6 +131,7 @@
     percentage = 60;
     $("pctGrid").querySelectorAll(".pct").forEach((p) => p.classList.toggle("active", +p.dataset.v === 60));
     document.querySelectorAll("select[data-other]").forEach((sel) => $(sel.dataset.other).classList.add("hidden"));
+    $("suiviNote").style.display = "none"; $("sSuiviNote").style.display = "none";
     recalc();
     await refreshAll();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -156,6 +179,8 @@
 
   /* ==========  DÉTAIL  ========== */
   document.addEventListener("click", (e) => {
+    const pr = e.target.closest("[data-printreq]");
+    if (pr) { const r = myReqs.find((x) => x.id === pr.dataset.printreq); if (r) SHELL.printRequest(r); return; }
     const b = e.target.closest("[data-detail]");
     if (!b) return;
     const r = myReqs.find((x) => x.id === b.dataset.detail);
@@ -167,7 +192,8 @@
       SHELL.briefRows(r) +
       SHELL.row("Architecte assigné", r.assignedTo ? AB.escapeHtml(r.assignedTo) : "<span class='muted'>En attente d'affectation</span>") +
       SHELL.row("Date de la demande", AB.formatDate(r.createdAt)) +
-      SHELL.amountBlock(r.amount));
+      SHELL.amountBlock(r.amount) +
+      "<div style='margin-top:14px;text-align:center'><button class='btn btn--outline btn--sm' data-printreq='" + r.id + "'>📄 Télécharger le détail (PDF)</button></div>");
   }
 
   /* ==========  CONTACT  ========== */
