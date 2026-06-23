@@ -158,9 +158,16 @@ h1, h2, h3, h4 { font-family: var(--ff-head); line-height: 1.15; font-weight: 70
 .hero__logo { height: 104px; width: auto; filter: drop-shadow(0 8px 22px rgba(0,0,0,.45)); }
 .hero__name {
   font-family: "UnifrakturCook", "Poppins", serif; font-weight: 700;
-  font-size: clamp(2.8rem, 7.5vw, 5.4rem); line-height: 1; color: var(--gold-400);
-  text-shadow: 0 4px 26px rgba(0,0,0,.5); letter-spacing: 1px;
+  font-size: clamp(3.2rem, 9.5vw, 7rem); line-height: 1;
+  text-shadow: 0 4px 26px rgba(0,0,0,.55); letter-spacing: 1px;
 }
+.hero__name .hn-a { color: #f5f0e2; }
+.hero__name .hn-b { color: var(--gold-400); }
+
+/* Logo texte (visible sur fonds sombres : ARCHI blanc + _BUILDERS doré) */
+.brandmark { font-family: var(--ff-head); font-weight: 800; letter-spacing: .5px; line-height: 1; display: inline-block; }
+.brandmark .a { color: #ffffff; }
+.brandmark .b { color: var(--gold-400); }
 .hero__badge {
   display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; margin-bottom: 22px;
   border: 1px solid rgba(255,255,255,.28); border-radius: 999px;
