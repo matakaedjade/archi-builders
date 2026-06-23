@@ -103,16 +103,19 @@
     if (pr) { const r = allReqs.find((x) => x.id === pr.dataset.printreq); if (r) SHELL.printRequest(r); return; }
     const rate = e.target.closest("[data-rateemp]");
     if (rate) {
-      const sc = document.getElementById("rateScore").value;
+      const box = rate.closest(".rate-box");
+      const scoreEl = box && box.querySelector(".rate-score");
+      const commentEl = box && box.querySelector(".rate-comment");
+      const sc = scoreEl ? scoreEl.value : "";
       if (sc === "") { alert("Choisissez une note de 0 à 10."); return; }
       rate.disabled = true; rate.textContent = "⏳…";
       const res = await DB.rateEmployee({
         employeeId: rate.dataset.rateemp, employeeName: rate.dataset.ratename,
         requestId: rate.dataset.ratereq, projectLabel: rate.dataset.ratelabel,
-        score: +sc, comment: document.getElementById("rateComment").value.trim(),
+        score: +sc, comment: commentEl ? commentEl.value.trim() : "",
       });
-      if (!res.ok) { rate.disabled = false; rate.textContent = "Enregistrer la note"; alert("Erreur : " + (res.error || "")); return; }
-      rate.textContent = "✓ Note enregistrée";
+      if (!res.ok) { rate.disabled = false; rate.textContent = "Enregistrer"; alert("Erreur : " + (res.error || "")); return; }
+      rate.textContent = "✓ Enregistrée";
       allRatings = await DB.getRatings();
       renderTeam();
       return;
@@ -134,20 +137,25 @@
   async function reloadReq() { allReqs = await DB.getRequests(); refreshKpis(); renderDash(); renderAll(); }
   async function reloadProfiles() { profiles = await DB.getAllProfiles(); refreshKpis(); renderTeam(); renderClients(); }
 
-  function ratingBlock(r) {
-    const emp = profiles.find((p) => p.name === r.assignedTo && (p.role === "employe" || p.role === "admin"));
-    if (!emp) return "<div style='margin-top:14px;padding:12px;background:var(--bg-soft);border-radius:10px' class='muted'>Affectez ce dossier à un employé pour pouvoir le noter.</div>";
-    const existing = allRatings.find((x) => x.requestId === r.id && x.employeeId === emp.id);
+  // Contrôle de notation réutilisable (détail demande + activité supervision)
+  function rateControl(empId, empName, r) {
+    const existing = allRatings.find((x) => x.requestId === r.id && x.employeeId === empId);
     const opts = ["<option value=''>Note…</option>"].concat(
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => "<option value='" + n + "'" + (existing && existing.score === n ? " selected" : "") + ">" + n + "/10</option>")
     ).join("");
+    return "<div class='rate-box' style='display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px'>" +
+      "<select class='select rate-score' style='max-width:110px'>" + opts + "</select>" +
+      "<input class='input rate-comment' placeholder='Commentaire (optionnel)' value='" + esc(existing ? (existing.comment || "") : "") + "' style='flex:1;min-width:150px'>" +
+      "<button class='btn btn--gold btn--sm' data-rateemp='" + empId + "' data-ratereq='" + r.id + "' data-ratename='" + esc(empName) + "' data-ratelabel='" + esc(r.buildingType || "Projet") + "'>Enregistrer</button>" +
+      "</div>";
+  }
+  function ratingBlock(r) {
+    const emp = profiles.find((p) => p.name === r.assignedTo && (p.role === "employe" || p.role === "admin"));
+    if (!emp) return "<div style='margin-top:14px;padding:12px;background:var(--bg-soft);border-radius:10px' class='muted'>Affectez ce dossier à un employé pour pouvoir le noter.</div>";
     return "<div style='margin-top:16px;padding:14px;background:var(--green-100);border-radius:10px'>" +
       "<b>Évaluer le travail de " + esc(emp.name) + " sur ce projet</b>" +
-      "<div style='display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap'>" +
-      "<select class='select' id='rateScore' style='max-width:110px'>" + opts + "</select>" +
-      "<input class='input' id='rateComment' placeholder='Commentaire (optionnel)' value='" + esc(existing ? (existing.comment || "") : "") + "' style='flex:1;min-width:160px'>" +
-      "<button class='btn btn--gold btn--sm' data-rateemp='" + emp.id + "' data-ratereq='" + r.id + "' data-ratename='" + esc(emp.name) + "' data-ratelabel='" + esc(r.buildingType || "Projet") + "'>Enregistrer la note</button>" +
-      "</div><div class='muted' style='margin-top:6px;font-size:.8rem'>🔒 Visible uniquement par l'employé concerné et la direction (DG/DT).</div></div>";
+      rateControl(emp.id, emp.name, r) +
+      "<div class='muted' style='margin-top:6px;font-size:.8rem'>🔒 Visible uniquement par l'employé concerné et la direction (DG/DT).</div></div>";
   }
   function showDetail(r) {
     SHELL.openModal("Demande — " + r.clientName,
@@ -230,10 +238,13 @@
     if (!m) return;
     const ass = allReqs.filter((r) => r.assignedTo === m.name);
     const reps = allReports.filter((r) => r.authorName === m.name);
+    const canRate = m.role === "employe" || m.role === "admin";
     const dossiers = ass.length
-      ? "<div class='table-wrap'><table class='tbl'><thead><tr><th>Client</th><th>Projet</th><th>Statut</th></tr></thead><tbody>" +
-        ass.map((r) => "<tr><td>" + esc(r.clientName) + "</td><td>" + esc(r.buildingType) + "</td><td>" + SHELL.badge(r.status) + "</td></tr>").join("") +
-        "</tbody></table></div>"
+      ? ass.map((r) =>
+          "<div style='padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px'>" +
+          "<b>" + esc(r.buildingType) + "</b> — " + esc(r.clientName) + " &nbsp; " + SHELL.badge(r.status) +
+          (canRate ? "<div class='muted' style='font-size:.8rem;margin-top:8px'>Noter le travail sur ce projet :</div>" + rateControl(m.id, m.name, r) : "") +
+          "</div>").join("")
       : "<span class='muted'>Aucun dossier affecté.</span>";
     const rapports = reps.length
       ? reps.map((r) => "<div class='file-pill' style='display:block;margin:6px 0'>📝 <b>" + esc(r.title) + "</b> <span class='muted'>· " + AB.formatDate(r.createdAt) + "</span><br><span style='white-space:pre-wrap'>" + esc(r.content) + "</span></div>").join("")
