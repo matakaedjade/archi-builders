@@ -141,16 +141,28 @@ window.SHELL = (function () {
     return html;
   }
 
+  /* ----------  Note compacte en étoiles (organigramme)  ---------- */
+  function compactStars(scores) {
+    if (!scores || !scores.length) return "";
+    const s5 = (scores.reduce((a, b) => a + (b || 0), 0) / scores.length) / 2;
+    const full = Math.round(s5);
+    let st = ""; for (let i = 1; i <= 5; i++) st += (i <= full ? "★" : "☆");
+    return "<small style='color:#d4a017;letter-spacing:1px;display:block;margin-top:3px'>" + st + " " + s5.toFixed(1) + "/5</small>";
+  }
+
   /* ----------  Organigramme de l'entreprise  ---------- */
-  function orgChartHtml(staff) {
+  // scoresByEmp (optionnel) : { id_employé: [notes/10] } → affiche les étoiles
+  function orgChartHtml(staff, scoresByEmp) {
     if (!staff || !staff.length)
       return "<div class='empty'><div class='ic'>🏛️</div><p>L'organigramme s'affichera dès que des membres auront un métier attribué.</p></div>";
+    const sc = scoresByEmp || {};
     const byDept = {};
     staff.forEach((p) => { const d = p.department || "autre"; (byDept[d] = byDept[d] || []).push(p); });
     const card = (p) =>
       "<div class='org-card'><b>" + AB.escapeHtml(p.name || "—") + "</b>" +
       "<span>" + AB.escapeHtml(p.department ? AB.deptLabel(p.department) : (p.role === "admin" ? "Direction" : "Employé")) + "</span>" +
-      (p.phone ? "<small>" + AB.escapeHtml(p.phone) + "</small>" : "") + "</div>";
+      (p.phone ? "<small>" + AB.escapeHtml(p.phone) + "</small>" : "") +
+      compactStars(sc[p.id]) + "</div>";
 
     const direction = staff.filter((p) => p.role === "admin");
     let html = "<div class='org'>";

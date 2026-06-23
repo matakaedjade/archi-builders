@@ -290,7 +290,12 @@
     if (view === "reports") { allReports = await DB.getReports(); renderReports(); }
     if (view === "employees") { profiles = await DB.getAllProfiles(); renderTeam(); }
     if (view === "clients") { await loadAll(); renderClients(); }
-    if (view === "org") { profiles = await DB.getAllProfiles(); document.getElementById("orgWrap").innerHTML = SHELL.orgChartHtml(staff()); }
+    if (view === "org") {
+      await loadAll();
+      const sc = {};
+      allRatings.forEach((x) => { (sc[x.employeeId] = sc[x.employeeId] || []).push(x.score); });
+      document.getElementById("orgWrap").innerHTML = SHELL.orgChartHtml(staff(), sc);
+    }
   }
 
   await loadAll();
