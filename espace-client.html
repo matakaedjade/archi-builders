@@ -366,11 +366,14 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/db.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/app-shell.js"></script>
-  <script src="js/client.js"></script>
+  <script>
+    /* Anti-cache : charge toujours la dernière version des scripts */
+    (function () {
+      var v = Date.now();
+      ["js/config.js", "js/data.js", "js/db.js", "js/auth.js", "js/app-shell.js", "js/client.js"].forEach(function (f) {
+        var s = document.createElement("script"); s.src = f + "?v=" + v; s.async = false; document.head.appendChild(s);
+      });
+    })();
+  </script>
 </body>
 </html>
