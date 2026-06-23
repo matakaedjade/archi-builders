@@ -40,13 +40,33 @@ window.AB = (function () {
 
   /* ----------  Métiers / postes  ---------- */
   const DEPARTMENTS = {
-    architecte: "Architecte", ingenieur: "Ingénieur", technicien: "Technicien",
-    comptable: "Comptable", secretaire: "Secrétaire", securite: "Agent de sécurité",
-    dg: "Directeur Général", dt: "Directeur Technique", direction: "Direction",
+    architecte: "Architecte",
+    ingenieur: "Ingénieur",
+    technicien: "Technicien",
+    dessinateur: "Dessinateur-projeteur",
+    chef_chantier: "Chef de chantier",
+    conducteur: "Conducteur de travaux",
+    metreur: "Métreur",
+    comptable: "Comptable",
+    caissier: "Caissier / Caissière",
+    juriste: "Juriste",
+    rh: "Ressources humaines",
+    commercial: "Commercial",
+    secretaire: "Secrétaire",
+    magasinier: "Magasinier",
+    logistique: "Logistique / Approvisionnement",
+    chauffeur: "Chauffeur",
+    entretien: "Agent d'entretien",
+    securite: "Agent de sécurité",
+    dg: "Directeur Général",
+    dt: "Directeur Technique",
+    direction: "Direction",
   };
-  const EMPLOYEE_DEPTS = ["architecte", "ingenieur", "technicien", "comptable", "secretaire", "securite"];
+  const EMPLOYEE_DEPTS = ["architecte", "ingenieur", "technicien", "dessinateur", "chef_chantier",
+    "conducteur", "metreur", "comptable", "caissier", "juriste", "rh", "commercial",
+    "secretaire", "magasinier", "logistique", "chauffeur", "entretien", "securite"];
   const ADMIN_DEPTS = ["dg", "dt", "direction"];
-  const CONCEPTION_DEPTS = ["architecte", "ingenieur", "technicien"];
+  const CONCEPTION_DEPTS = ["architecte", "ingenieur", "technicien", "dessinateur", "metreur"];
   const deptLabel = (d) => DEPARTMENTS[d] || (d || "—");
 
   return { PRICE_PER_SQM, CURRENCY, STATUS,

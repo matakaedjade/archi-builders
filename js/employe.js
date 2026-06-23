@@ -157,6 +157,7 @@
     if (view === "mine") { await load(); renderMine(); }
     if (view === "colleagues") renderColleagues();
     if (view === "reports") loadReports();
+    if (view === "org") { document.getElementById("orgWrap").innerHTML = SHELL.orgChartHtml(await DB.getStaff()); }
   }
 
   await load();

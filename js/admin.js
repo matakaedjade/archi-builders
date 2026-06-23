@@ -240,6 +240,7 @@
     if (view === "reports") { allReports = await DB.getReports(); renderReports(); }
     if (view === "employees") { profiles = await DB.getAllProfiles(); renderTeam(); }
     if (view === "clients") { await loadAll(); renderClients(); }
+    if (view === "org") { profiles = await DB.getAllProfiles(); document.getElementById("orgWrap").innerHTML = SHELL.orgChartHtml(staff()); }
   }
 
   await loadAll();

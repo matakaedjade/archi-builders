@@ -25,6 +25,7 @@
         <a data-view="reports"><span class="ic">📝</span> Rapports</a>
         <a data-view="employees"><span class="ic">👷</span> Équipe</a>
         <a data-view="clients"><span class="ic">🧑</span> Clients</a>
+        <a data-view="org"><span class="ic">🏛️</span> Organigramme</a>
         <a href="index.html"><span class="ic">↩</span> Voir le site</a>
       </nav>
       <div class="sidebar__foot">
@@ -115,6 +116,14 @@
           <div class="panel">
             <div class="panel__head"><div><h2>Rapports des employés</h2><p>Tous les rapports envoyés par l'équipe à la direction.</p></div></div>
             <div id="adminReportsTable"></div>
+          </div>
+        </section>
+
+        <!-- ORGANIGRAMME -->
+        <section data-view="org" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Organigramme ARCHI_BUILDERS</h2><p>Direction et métiers de l'entreprise.</p></div></div>
+            <div id="orgWrap"></div>
           </div>
         </section>
 

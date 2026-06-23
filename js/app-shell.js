@@ -9,7 +9,7 @@ window.SHELL = (function () {
     dash: "Tableau de bord", new: "Nouvelle conception", requests: "Demandes",
     mine: "Mes dossiers", projets: "Projets réalisés", contact: "Contact",
     colleagues: "Collègues", supervision: "Supervision", reports: "Rapports",
-    employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
+    org: "Organigramme", employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
   };
 
   async function initSession(role) {
@@ -140,6 +140,32 @@ window.SHELL = (function () {
     return html;
   }
 
+  /* ----------  Organigramme de l'entreprise  ---------- */
+  function orgChartHtml(staff) {
+    if (!staff || !staff.length)
+      return "<div class='empty'><div class='ic'>🏛️</div><p>L'organigramme s'affichera dès que des membres auront un métier attribué.</p></div>";
+    const byDept = {};
+    staff.forEach((p) => { const d = p.department || "autre"; (byDept[d] = byDept[d] || []).push(p); });
+    const card = (p) =>
+      "<div class='org-card'><b>" + AB.escapeHtml(p.name || "—") + "</b>" +
+      "<span>" + AB.escapeHtml(p.department ? AB.deptLabel(p.department) : (p.role === "admin" ? "Direction" : "Employé")) + "</span>" +
+      (p.phone ? "<small>" + AB.escapeHtml(p.phone) + "</small>" : "") + "</div>";
+
+    const direction = staff.filter((p) => p.role === "admin");
+    let html = "<div class='org'>";
+    html += "<div class='org-level org-top'>" +
+      (direction.length ? direction.map(card).join("") : "<div class='org-card'><b>Direction</b><span>Direction Générale</span></div>") +
+      "</div><div class='org-connector'></div>";
+
+    const depts = AB.EMPLOYEE_DEPTS.filter((d) => byDept[d]).concat(byDept["autre"] ? ["autre"] : []);
+    html += "<div class='org-depts'>";
+    html += depts.map((d) =>
+      "<div class='org-dept'><div class='org-dept__head'>" + (d === "autre" ? "Autres" : AB.deptLabel(d)) + "</div>" +
+      byDept[d].map(card).join("") + "</div>").join("");
+    html += "</div></div>";
+    return html;
+  }
+
   return { initSession, initNav, initMobile, initModal, openModal, closeModal,
-           badge, row, amountBlock, filesHtml, briefRows, VIEW_TITLES };
+           badge, row, amountBlock, filesHtml, briefRows, orgChartHtml, VIEW_TITLES };
 })();
