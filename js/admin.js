@@ -288,7 +288,7 @@
     if (view === "requests") { allReqs = await DB.getRequests(); renderAll(); }
     if (view === "supervision") { await loadAll(); renderSupervision(); }
     if (view === "reports") { allReports = await DB.getReports(); renderReports(); }
-    if (view === "employees") { profiles = await DB.getAllProfiles(); renderTeam(); }
+    if (view === "employees") { await loadAll(); renderTeam(); }
     if (view === "clients") { await loadAll(); renderClients(); }
     if (view === "org") {
       await loadAll();

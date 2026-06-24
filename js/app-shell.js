@@ -164,7 +164,10 @@ window.SHELL = (function () {
       (p.phone ? "<small>" + AB.escapeHtml(p.phone) + "</small>" : "") +
       compactStars(sc[p.id]) + "</div>";
 
-    const direction = staff.filter((p) => p.role === "admin");
+    // Direction triée du plus haut grade au plus bas (organigramme hiérarchique)
+    const rankOrder = ["pdg", "dg", "dga", "dt", "daf", "drh", "dco", "dop", "direction"];
+    const rk = (d) => { const i = rankOrder.indexOf(d || "direction"); return i < 0 ? 99 : i; };
+    const direction = staff.filter((p) => p.role === "admin").sort((a, b) => rk(a.department) - rk(b.department));
     let html = "<div class='org'>";
     html += "<div class='org-level org-top'>" +
       (direction.length ? direction.map(card).join("") : "<div class='org-card'><b>Direction</b><span>Direction Générale</span></div>") +
