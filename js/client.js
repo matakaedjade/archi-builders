@@ -193,6 +193,7 @@
       SHELL.row("Architecte assigné", r.assignedTo ? AB.escapeHtml(r.assignedTo) : "<span class='muted'>En attente d'affectation</span>") +
       SHELL.row("Date de la demande", AB.formatDate(r.createdAt)) +
       SHELL.amountBlock(r.amount) +
+      SHELL.paymentBlock(r) +
       "<div style='margin-top:14px;text-align:center'><button class='btn btn--outline btn--sm' data-printreq='" + r.id + "'>📄 Télécharger le détail (PDF)</button></div>");
   }
 

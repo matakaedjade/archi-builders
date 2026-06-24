@@ -25,6 +25,7 @@
         <a data-view="reports"><span class="ic">📝</span> Rapports</a>
         <a data-view="employees"><span class="ic">👷</span> Équipe</a>
         <a data-view="clients"><span class="ic">🧑</span> Clients</a>
+        <a data-view="finance"><span class="ic">💰</span> Finances</a>
         <a data-view="org"><span class="ic">🏛️</span> Organigramme</a>
         <a data-view="media"><span class="ic">🖼️</span> Médias du site</a>
         <a href="index.html"><span class="ic">↩</span> Voir le site</a>
@@ -156,6 +157,11 @@
           </div>
         </section>
 
+        <!-- FINANCES -->
+        <section data-view="finance" class="hidden">
+          <div id="financeWrap"></div>
+        </section>
+
       </div>
     </div>
   </div>
@@ -172,7 +178,7 @@
     /* Anti-cache : charge toujours la dernière version des scripts */
     (function () {
       var v = Date.now();
-      ["js/config.js", "js/data.js", "js/db.js", "js/auth.js", "js/app-shell.js", "js/admin.js", "js/media.js"].forEach(function (f) {
+      ["js/config.js", "js/data.js", "js/db.js", "js/auth.js", "js/app-shell.js", "js/admin.js", "js/media.js", "js/finance.js"].forEach(function (f) {
         var s = document.createElement("script"); s.src = f + "?v=" + v; s.async = false; document.head.appendChild(s);
       });
     })();

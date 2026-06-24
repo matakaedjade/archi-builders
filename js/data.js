@@ -43,6 +43,13 @@ window.AB = (function () {
     return { footprint, builtSurface, levels: lv, amount, pricePerSqm: r };
   }
 
+  // Acompte à verser : moitié si facture <= 300 000 F, sinon un tiers
+  function requiredDeposit(total) {
+    const t = Number(total) || 0;
+    if (t <= 300000) return { amount: t * 0.5, label: "moitié de la facture" };
+    return { amount: t / 3, label: "1/3 de la facture" };
+  }
+
   const STATUS = {
     new:      { label: "Nouvelle", cls: "badge--new" },
     progress: { label: "En cours", cls: "badge--progress" },
@@ -90,5 +97,5 @@ window.AB = (function () {
 
   return { PRICE_PER_SQM, CURRENCY, STATUS, FORMULES,
            DEPARTMENTS, EMPLOYEE_DEPTS, ADMIN_DEPTS, CONCEPTION_DEPTS, deptLabel,
-           formatMoney, formatNumber, formatDate, escapeHtml, computeQuote };
+           formatMoney, formatNumber, formatDate, escapeHtml, computeQuote, requiredDeposit };
 })();

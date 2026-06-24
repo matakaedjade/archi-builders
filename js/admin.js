@@ -101,6 +101,18 @@
   document.addEventListener("click", async (e) => {
     const pr = e.target.closest("[data-printreq]");
     if (pr) { const r = allReqs.find((x) => x.id === pr.dataset.printreq); if (r) SHELL.printRequest(r); return; }
+    const sav = e.target.closest("[data-saveadv]");
+    if (sav) {
+      const box = sav.closest("div");
+      const inp = box ? box.querySelector(".adv-input") : null;
+      sav.disabled = true; sav.textContent = "⏳…";
+      await DB.updateRequest(sav.dataset.saveadv, { advance: inp ? (+inp.value || 0) : 0 });
+      allReqs = await DB.getRequests();
+      refreshKpis(); renderDash(); renderAll();
+      const r2 = allReqs.find((x) => x.id === sav.dataset.saveadv);
+      if (r2) showDetail(r2);
+      return;
+    }
     const rate = e.target.closest("[data-rateemp]");
     if (rate) {
       const box = rate.closest(".rate-box");
@@ -166,8 +178,19 @@
       SHELL.row("Affecté à", r.assignedTo ? esc(r.assignedTo) : "—") +
       SHELL.row("Date", AB.formatDate(r.createdAt)) +
       SHELL.amountBlock(r.amount) +
+      SHELL.paymentBlock(r) +
+      advanceEditor(r) +
       ratingBlock(r) +
       "<div style='margin-top:14px;text-align:center'><button class='btn btn--outline btn--sm' data-printreq='" + r.id + "'>📄 Télécharger le détail (PDF)</button></div>");
+  }
+  function advanceEditor(r) {
+    return "<div style='margin-top:12px;padding:12px;background:var(--green-100);border-radius:10px'>" +
+      "<b>💰 Enregistrer un paiement du client</b>" +
+      "<div style='display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center'>" +
+      "<span class='muted'>Montant total avancé :</span>" +
+      "<input class='input adv-input' type='number' min='0' step='1000' value='" + (r.advance || 0) + "' style='max-width:170px'>" +
+      "<button class='btn btn--gold btn--sm' data-saveadv='" + r.id + "'>Enregistrer l'avance</button>" +
+      "</div></div>";
   }
 
   /* ----------  Équipe (employés & direction)  ---------- */

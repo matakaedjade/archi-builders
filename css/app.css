@@ -200,6 +200,14 @@ table.tbl tr:hover td { background: var(--bg-soft); }
 .media-meta b { display: block; font-size: .95rem; }
 .media-meta span { font-size: .8rem; }
 
+/* ----------  Bloc paiement (avances)  ---------- */
+.pay-block { margin-top: 16px; background: var(--bg-soft); border-radius: var(--radius-sm); padding: 14px 16px; }
+.pay-line { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: .92rem; }
+.pay-line span { color: var(--muted); }
+.pay-line--total { border-top: 2px solid var(--green-100); margin-top: 6px; padding-top: 10px; font-size: 1.05rem; }
+.pay-line--total b { font-weight: 800; }
+.kpi--money b { font-size: 1.5rem; }
+
 /* ----------  Responsive app  ---------- */
 @media (max-width: 900px) {
   .auth-page { grid-template-columns: 1fr; }

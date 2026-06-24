@@ -10,7 +10,7 @@ window.SHELL = (function () {
     mine: "Mes dossiers", projets: "Projets réalisés", contact: "Contact",
     colleagues: "Collègues", supervision: "Supervision", reports: "Rapports",
     evaluations: "Mes évaluations", org: "Organigramme", media: "Médias du site",
-    employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
+    finance: "Finances", employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
   };
 
   async function initSession(role) {
@@ -97,6 +97,22 @@ window.SHELL = (function () {
   function amountBlock(amount) {
     return '<div class="detail-amount"><small>MONTANT DE LA CONCEPTION</small><div class="amount">' +
       AB.formatMoney(amount) + "</div></div>";
+  }
+
+  // Bloc paiement : total, acompte à verser, montant avancé, reste à payer
+  function paymentBlock(r) {
+    const total = r.amount || 0;
+    const advance = r.advance || 0;
+    const remaining = Math.max(0, total - advance);
+    const dep = AB.requiredDeposit(total);
+    const line = (k, v, color) =>
+      "<div class='pay-line'><span>" + k + "</span><b" + (color ? " style='color:" + color + "'" : "") + ">" + v + "</b></div>";
+    return "<div class='pay-block'>" +
+      line("Montant total de la facture", AB.formatMoney(total)) +
+      line("Acompte à verser (" + dep.label + ")", AB.formatMoney(dep.amount), "#b7860b") +
+      line("Montant déjà avancé", AB.formatMoney(advance), "#1e8a4c") +
+      "<div class='pay-line pay-line--total'><span>Reste à payer</span><b style='color:#c0392b'>" + AB.formatMoney(remaining) + "</b></div>" +
+      "</div>";
   }
 
   function filesHtml(r) {
@@ -233,6 +249,14 @@ window.SHELL = (function () {
       (r.notes ? line("Précisions", esc(r.notes).replace(/\n/g, "<br>")) : "") +
       "</table>" +
       "<div class='amt'><div>MONTANT DE LA CONCEPTION</div><b>" + AB.formatMoney(r.amount) + "</b></div>" +
+      (function () {
+        var total = r.amount || 0, adv = r.advance || 0, rem = Math.max(0, total - adv), dep = AB.requiredDeposit(total);
+        return "<table style='margin-top:8px'>" +
+          line("Acompte à verser (" + dep.label + ")", AB.formatMoney(dep.amount)) +
+          line("Montant déjà avancé", AB.formatMoney(adv)) +
+          line("<b>Reste à payer</b>", "<b>" + AB.formatMoney(rem) + "</b>") +
+          "</table>";
+      })() +
       "<div class='foot'>ARCHI_BUILDERS — Lomé, Togo · +228 91 08 92 94 · archi-builders@gmail.com</div>" +
       "<div class='noprint' style='text-align:center;margin-top:20px'><button onclick='window.print()' style='padding:10px 20px;font-size:15px;cursor:pointer'>🖨️ Imprimer / Enregistrer en PDF</button></div>" +
       "</body></html>");
@@ -253,5 +277,5 @@ window.SHELL = (function () {
   }
 
   return { initSession, initNav, initMobile, initModal, openModal, closeModal,
-           badge, row, amountBlock, filesHtml, briefRows, orgChartHtml, printRequest, starsHtml, VIEW_TITLES };
+           badge, row, amountBlock, paymentBlock, filesHtml, briefRows, orgChartHtml, printRequest, starsHtml, VIEW_TITLES };
 })();

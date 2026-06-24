@@ -87,6 +87,7 @@
       SHELL.row("Affecté à", r.assignedTo ? AB.escapeHtml(r.assignedTo) : "—") +
       SHELL.row("Date", AB.formatDate(r.createdAt)) +
       SHELL.amountBlock(r.amount) +
+      SHELL.paymentBlock(r) +
       "<div style='margin-top:14px;text-align:center'><button class='btn btn--outline btn--sm' data-printreq='" + r.id + "'>📄 Télécharger le détail (PDF)</button></div>" +
       actions);
   }

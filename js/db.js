@@ -26,7 +26,7 @@ window.DB = (function () {
       location: r.location, topography: r.topography, orientation: r.orientation,
       budget: r.budget, deadline: r.deadline,
       terrainSurface: r.terrain_surface, percentage: r.percentage, builtSurface: r.built_surface,
-      amount: r.amount, notes: r.notes, files: r.files || [], status: r.status,
+      amount: r.amount, advance: r.advance || 0, notes: r.notes, files: r.files || [], status: r.status,
       assignedTo: r.assigned_to, createdAt: r.created_at,
     };
   }
@@ -122,6 +122,7 @@ window.DB = (function () {
     const row = {};
     if ("status" in patch) row.status = patch.status;
     if ("assignedTo" in patch) row.assigned_to = patch.assignedTo;
+    if ("advance" in patch) row.advance = patch.advance;
     const { error } = await sb.from("requests").update(row).eq("id", id);
     return { ok: !error, error: error && error.message };
   }
