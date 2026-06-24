@@ -191,6 +191,15 @@ table.tbl tr:hover td { background: var(--bg-soft); }
 .org-dept__head { font-family: var(--ff-head); font-weight: 700; color: var(--green-800); text-align: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--green-100); }
 .org-dept .org-card { margin-bottom: 8px; min-width: 0; box-shadow: none; }
 
+/* ----------  Gestion des médias du site  ---------- */
+.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.media-card { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fff; padding: 10px; }
+.media-thumb { height: 130px; border-radius: var(--radius-sm); background-size: cover; background-position: center; background-color: var(--bg-soft); }
+.media-thumb--video { display: grid; place-items: center; background: linear-gradient(135deg, var(--green-800), var(--green-600)); color: var(--gold-400); font-family: var(--ff-head); font-weight: 700; }
+.media-meta { padding: 10px 2px 8px; }
+.media-meta b { display: block; font-size: .95rem; }
+.media-meta span { font-size: .8rem; }
+
 /* ----------  Responsive app  ---------- */
 @media (max-width: 900px) {
   .auth-page { grid-template-columns: 1fr; }

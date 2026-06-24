@@ -56,36 +56,60 @@
   }, { threshold: 0.6 });
   counters.forEach((c) => cio.observe(c));
 
-  /* ----------  Projets : filtres par catégorie  ---------- */
+  /* ----------  Projets : galerie dynamique (base) + filtres + visionneuse  ---------- */
   const projFilters = document.getElementById("projFilters");
-  const projCards = document.querySelectorAll("#projGrid .pcard");
+  const grid = document.getElementById("projGrid");
+  const lb = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lbImg");
+  const lbClose = document.getElementById("lbClose");
+
+  function applyFilter(f) {
+    if (!grid) return;
+    grid.querySelectorAll(".pcard").forEach((card) =>
+      card.classList.toggle("hide", !(f === "all" || card.dataset.cat === f)));
+  }
   if (projFilters) {
     projFilters.addEventListener("click", (e) => {
       const chip = e.target.closest(".chip");
       if (!chip) return;
       projFilters.querySelectorAll(".chip").forEach((c) => c.classList.toggle("active", c === chip));
-      const f = chip.dataset.f;
-      projCards.forEach((card) => {
-        const show = f === "all" || card.dataset.cat === f;
-        card.classList.toggle("hide", !show);
-      });
+      applyFilter(chip.dataset.f);
     });
   }
-
-  /* ----------  Projets : lightbox plein écran  ---------- */
-  const lb = document.getElementById("lightbox");
-  const lbImg = document.getElementById("lbImg");
-  const lbClose = document.getElementById("lbClose");
-  document.querySelectorAll("[data-img]").forEach((g) => {
-    g.addEventListener("click", () => {
-      lbImg.src = g.dataset.img;
-      lb.classList.add("open");
+  if (grid) {
+    grid.addEventListener("click", (e) => {
+      const card = e.target.closest(".pcard");
+      if (!card) return;
+      if (card.dataset.video) { window.open(card.dataset.video, "_blank"); return; }
+      if (card.dataset.img && lb) { lbImg.src = card.dataset.img; lb.classList.add("open"); }
     });
-  });
-  const closeLb = () => lb.classList.remove("open");
+  }
+  const closeLb = () => lb && lb.classList.remove("open");
   if (lbClose) lbClose.addEventListener("click", closeLb);
   if (lb) lb.addEventListener("click", (e) => { if (e.target === lb) closeLb(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLb(); });
+
+  // Charge la galerie depuis la base (les médias gérés par la direction / communication)
+  async function loadGallery() {
+    if (!grid || !window.DB || !DB.getSiteMedia) return;
+    let media = [];
+    try { media = await DB.getSiteMedia(); } catch (e) { return; }
+    if (!media.length) return; // garde les images par défaut présentes dans le HTML
+    const esc = AB.escapeHtml;
+    const catKey = (c) => { c = (c || "").toLowerCase(); if (c.indexOf("immeuble") >= 0) return "immeubles"; if (c.indexOf("inter") >= 0) return "interieurs"; return "villas"; };
+    grid.innerHTML = media.map((m) => {
+      const cat = catKey(m.category);
+      if (m.kind === "video") {
+        return "<article class='pcard' data-cat='" + cat + "' data-video='" + esc(m.url) + "'>" +
+          "<div class='pcard__img' style='background:linear-gradient(135deg,#0f3322,#237049);display:grid;place-items:center;color:#e3b53e;font-family:Poppins,sans-serif;font-weight:700;font-size:1.1rem'>▶ Vidéo<span class='pcard__zoom'>▶</span></div>" +
+          "<div class='pcard__body'><span class='pcard__cat'>" + esc(m.category || "") + "</span><h3>" + esc(m.title || "") + "</h3><p>📍 Lomé, Togo</p></div></article>";
+      }
+      return "<article class='pcard' data-cat='" + cat + "' data-img='" + esc(m.url) + "'>" +
+        "<div class='pcard__img'><img src='" + esc(m.url) + "' alt='" + esc(m.title || "") + "' loading='lazy' /><span class='pcard__zoom'>＋</span></div>" +
+        "<div class='pcard__body'><span class='pcard__cat'>" + esc(m.category || "") + "</span><h3>" + esc(m.title || "") + "</h3><p>📍 Lomé, Togo</p></div></article>";
+    }).join("");
+  }
+  loadGallery();
 
   /* ----------  Mini-calculateur d'accueil  ---------- */
   const mTerrain = document.getElementById("mTerrain");

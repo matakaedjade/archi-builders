@@ -26,6 +26,7 @@
         <a data-view="reports"><span class="ic">📝</span> Mes rapports</a>
         <a data-view="evaluations"><span class="ic">⭐</span> Mes évaluations</a>
         <a data-view="org"><span class="ic">🏛️</span> Organigramme</a>
+        <a data-view="media"><span class="ic">🖼️</span> Médias du site</a>
         <a href="index.html"><span class="ic">↩</span> Voir le site</a>
       </nav>
       <div class="sidebar__foot">
@@ -103,6 +104,34 @@
           </div>
         </section>
 
+        <!-- MÉDIAS DU SITE (chargé de communication) -->
+        <section data-view="media" class="hidden">
+          <div class="panel">
+            <div class="panel__head"><div><h2>Ajouter un média au site</h2><p>Image ou vidéo affichée dans la galerie « Projets réalisés » du site public.</p></div></div>
+            <form id="mediaUploadForm">
+              <div class="grid-2">
+                <div class="field"><label>Fichier (image ou vidéo)</label><input type="file" id="mediaFile" accept="image/*,video/*" /></div>
+                <div class="field"><label>OU lien vidéo (YouTube…)</label><input class="input" id="mediaUrl" placeholder="https://www.youtube.com/watch?v=..." /></div>
+              </div>
+              <div class="grid-2">
+                <div class="field"><label>Titre</label><input class="input" id="mediaTitle" placeholder="Ex. Villa contemporaine" /></div>
+                <div class="field"><label>Catégorie</label>
+                  <select class="select" id="mediaCategory">
+                    <option>Villas &amp; Duplex</option><option>Immeubles</option><option>Intérieurs</option><option>Autre</option>
+                  </select>
+                </div>
+              </div>
+              <div class="alert alert--ok" id="mediaOk"></div>
+              <div class="alert alert--err" id="mediaErr"></div>
+              <button class="btn btn--gold">＋ Ajouter au site</button>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="panel__head"><div><h2>Médias actuels du site</h2><p>Supprimez ceux que vous ne voulez plus afficher.</p></div></div>
+            <div id="mediaList"></div>
+          </div>
+        </section>
+
         <!-- COLLÈGUES -->
         <section data-view="colleagues" class="hidden">
           <div class="panel">
@@ -148,7 +177,7 @@
     /* Anti-cache : charge toujours la dernière version des scripts */
     (function () {
       var v = Date.now();
-      ["js/config.js", "js/data.js", "js/db.js", "js/auth.js", "js/app-shell.js", "js/employe.js"].forEach(function (f) {
+      ["js/config.js", "js/data.js", "js/db.js", "js/auth.js", "js/app-shell.js", "js/employe.js", "js/media.js"].forEach(function (f) {
         var s = document.createElement("script"); s.src = f + "?v=" + v; s.async = false; document.head.appendChild(s);
       });
     })();

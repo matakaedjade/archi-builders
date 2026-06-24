@@ -193,6 +193,42 @@ window.DB = (function () {
     return { ok: !error, error: error && error.message };
   }
 
+  /* ----------  Médias du site (galerie publique)  ---------- */
+  function rowToMedia(m) {
+    return { id: m.id, kind: m.kind, url: m.url, storagePath: m.storage_path,
+             title: m.title, category: m.category, sortOrder: m.sort_order, createdAt: m.created_at };
+  }
+  async function getSiteMedia() {
+    const { data, error } = await sb.from("site_media").select("*")
+      .order("sort_order", { ascending: true }).order("created_at", { ascending: true });
+    if (error) { console.error(error); return []; }
+    return data.map(rowToMedia);
+  }
+  async function uploadMedia(file) {
+    const safe = file.name.replace(/[^\w.\-]/g, "_");
+    const path = "site/" + Date.now() + "_" + safe;
+    const { error } = await sb.storage.from("media").upload(path, file, { upsert: false });
+    if (error) throw error;
+    const { data } = sb.storage.from("media").getPublicUrl(path);
+    return { url: data.publicUrl, path: path };
+  }
+  async function addSiteMedia(o) {
+    const prof = await currentProfile();
+    const row = {
+      kind: o.kind || "image", url: o.url, storage_path: o.storagePath || null,
+      title: o.title || null, category: o.category || null, sort_order: o.sortOrder || 0,
+      created_by: prof ? prof.name : "",
+    };
+    const { data, error } = await sb.from("site_media").insert(row).select().single();
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, media: rowToMedia(data) };
+  }
+  async function deleteSiteMedia(id, storagePath) {
+    if (storagePath) { await sb.storage.from("media").remove([storagePath]); }
+    const { error } = await sb.from("site_media").delete().eq("id", id);
+    return { ok: !error, error: error && error.message };
+  }
+
   return {
     currentUser, currentProfile, clearCache,
     getStaff, getEmployees, getClients, getAllProfiles, updateProfile, setRole, deleteProfile,
@@ -200,5 +236,6 @@ window.DB = (function () {
     uploadPlan, signedUrl,
     getReports, addReport, deleteReport,
     getRatings, rateEmployee,
+    getSiteMedia, uploadMedia, addSiteMedia, deleteSiteMedia,
   };
 })();

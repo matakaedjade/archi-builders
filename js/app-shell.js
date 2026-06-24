@@ -9,7 +9,7 @@ window.SHELL = (function () {
     dash: "Tableau de bord", new: "Nouvelle conception", requests: "Demandes",
     mine: "Mes dossiers", projets: "Projets réalisés", contact: "Contact",
     colleagues: "Collègues", supervision: "Supervision", reports: "Rapports",
-    evaluations: "Mes évaluations", org: "Organigramme",
+    evaluations: "Mes évaluations", org: "Organigramme", media: "Médias du site",
     employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
   };
 
