@@ -230,6 +230,35 @@ window.DB = (function () {
     return { ok: !error, error: error && error.message };
   }
 
+  /* ----------  Trésorerie (entrées / sorties de fonds)  ---------- */
+  function rowToTx(t) {
+    return { id: t.id, kind: t.kind, amount: t.amount, category: t.category, label: t.label,
+             method: t.method, occurredOn: t.occurred_on, authorName: t.author_name, createdAt: t.created_at };
+  }
+  async function getTransactions() {
+    const { data, error } = await sb.from("transactions").select("*")
+      .order("occurred_on", { ascending: false }).order("created_at", { ascending: false });
+    if (error) { console.error(error); return []; }
+    return data.map(rowToTx);
+  }
+  async function addTransaction(o) {
+    const u = await currentUser();
+    if (!u) return { ok: false, error: "Vous devez être connecté." };
+    const prof = await currentProfile();
+    const row = {
+      kind: o.kind, amount: o.amount, category: o.category || null, label: o.label || null,
+      method: o.method || null, occurred_on: o.occurredOn || null,
+      author_id: u.id, author_name: prof ? prof.name : "",
+    };
+    const { data, error } = await sb.from("transactions").insert(row).select().single();
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, tx: rowToTx(data) };
+  }
+  async function deleteTransaction(id) {
+    const { error } = await sb.from("transactions").delete().eq("id", id);
+    return { ok: !error, error: error && error.message };
+  }
+
   return {
     currentUser, currentProfile, clearCache,
     getStaff, getEmployees, getClients, getAllProfiles, updateProfile, setRole, deleteProfile,
@@ -238,5 +267,6 @@ window.DB = (function () {
     getReports, addReport, deleteReport,
     getRatings, rateEmployee,
     getSiteMedia, uploadMedia, addSiteMedia, deleteSiteMedia,
+    getTransactions, addTransaction, deleteTransaction,
   };
 })();
