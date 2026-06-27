@@ -12,6 +12,7 @@
   SHELL.initNav(onViewChange);
   const $ = (id) => document.getElementById(id);
   const esc = AB.escapeHtml;
+  const OWNER_EMAIL = "matakaedjade@gmail.com";  // compte fondateur — non supprimable
 
   let allReqs = [];
   let profiles = [];
@@ -35,7 +36,7 @@
   /* ----------  KPIs  ---------- */
   function refreshKpis() {
     $("kReq").textContent = allReqs.length;
-    $("kRev").textContent = AB.formatMoney(allReqs.reduce((s, x) => s + (x.amount || 0), 0));
+    $("kRev").textContent = AB.formatMoney(allReqs.filter((x) => x.status !== "rejected").reduce((s, x) => s + (x.amount || 0), 0));
     $("kClients").textContent = clients().length;
     $("kEmp").textContent = staff().length;
   }
@@ -137,7 +138,12 @@
     const del = e.target.closest("[data-del]");
     if (del) { if (confirm("Supprimer définitivement cette demande ?")) { await DB.deleteRequest(del.dataset.del); await reloadReq(); } return; }
     const delU = e.target.closest("[data-deluser]");
-    if (delU) { if (confirm("Retirer ce compte ? (la personne perdra son accès)")) { await DB.deleteProfile(delU.dataset.deluser); await reloadProfiles(); } return; }
+    if (delU) {
+      const target = profiles.find((p) => p.id === delU.dataset.deluser);
+      if (target && (target.email || "").toLowerCase() === OWNER_EMAIL) { alert("🔒 Le compte du fondateur ne peut pas être supprimé."); return; }
+      if (confirm("Retirer ce compte ? (la personne perdra son accès)")) { await DB.deleteProfile(delU.dataset.deluser); await reloadProfiles(); }
+      return;
+    }
     const act = e.target.closest("[data-activity]");
     if (act) { showActivity(act.dataset.activity); return; }
     const rep = e.target.closest("[data-report]");
@@ -206,7 +212,7 @@
         "<td>" + deptSelect(u) + "</td>" +
         "<td style='font-size:.82rem'>" + SHELL.starsHtml(empScores(u.id)) + "</td>" +
         "<td><span class='muted'>" + esc(u.email || "") + "<br>" + esc(u.phone || "") + "</span></td>" +
-        "<td>" + (u.id === session.id ? "<span class='muted'>vous</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + u.id + "'>🗑</button>") + "</td>" +
+        "<td>" + ((u.email || "").toLowerCase() === OWNER_EMAIL ? "<span class='muted'>🔒 fondateur</span>" : (u.id === session.id ? "<span class='muted'>vous</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + u.id + "'>🗑</button>")) + "</td>" +
         "</tr>").join("") +
       "</tbody></table></div>";
   }
@@ -225,7 +231,7 @@
           "<td>" + esc(c.phone || "—") + "</td>" +
           "<td>" + n + "</td>" +
           "<td>" + roleSelect(c) + "</td>" +
-          "<td><button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + c.id + "'>🗑</button></td>" +
+          "<td>" + ((c.email || "").toLowerCase() === OWNER_EMAIL ? "<span class='muted'>🔒</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + c.id + "'>🗑</button>") + "</td>" +
           "</tr>";
       }).join("") +
       "</tbody></table></div>";
