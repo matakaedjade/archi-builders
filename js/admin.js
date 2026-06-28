@@ -24,6 +24,13 @@
   const roleEl = document.querySelector(".who .meta span");
   if (roleEl) roleEl.textContent = session.department ? AB.deptLabel(session.department) : "Administrateur";
 
+  // L'historique des activités est réservé au compte fondateur
+  const isOwner = (session.email || "").toLowerCase() === OWNER_EMAIL;
+  if (!isOwner) {
+    document.querySelector('.snav a[data-view="history"]')?.remove();
+    document.querySelector('section[data-view="history"]')?.remove();
+  }
+
   let allRatings = [];
   async function loadAll() {
     allReqs = await DB.getRequests();
@@ -91,9 +98,9 @@
     const as = e.target.closest("[data-assign]");
     if (as) { await DB.updateRequest(as.dataset.assign, { assignedTo: as.value, status: as.value ? "progress" : "new" }); await reloadReq(); return; }
     const st = e.target.closest("[data-status]");
-    if (st) { await DB.updateRequest(st.dataset.status, { status: st.value }); await reloadReq(); return; }
+    if (st) { await DB.updateRequest(st.dataset.status, { status: st.value }); DB.logActivity("Statut d'une demande modifié", (AB.STATUS[st.value] ? AB.STATUS[st.value].label : st.value)); await reloadReq(); return; }
     const rl = e.target.closest("[data-roleuser]");
-    if (rl) { await DB.setRole(rl.dataset.roleuser, rl.value); await reloadProfiles(); return; }
+    if (rl) { await DB.setRole(rl.dataset.roleuser, rl.value); DB.logActivity("Rôle d'un compte modifié", "Nouveau rôle : " + roleFr(rl.value)); await reloadProfiles(); return; }
     const dp = e.target.closest("[data-deptuser]");
     if (dp) { await DB.updateProfile(dp.dataset.deptuser, { department: dp.value || null }); await reloadProfiles(); return; }
   });
@@ -136,7 +143,7 @@
     const det = e.target.closest("[data-detail]");
     if (det) { const r = allReqs.find((x) => x.id === det.dataset.detail); if (r) showDetail(r); return; }
     const del = e.target.closest("[data-del]");
-    if (del) { if (confirm("Supprimer définitivement cette demande ?")) { await DB.deleteRequest(del.dataset.del); await reloadReq(); } return; }
+    if (del) { if (confirm("Supprimer définitivement cette demande ?")) { await DB.deleteRequest(del.dataset.del); DB.logActivity("Demande supprimée", ""); await reloadReq(); } return; }
     const delU = e.target.closest("[data-deluser]");
     if (delU) {
       const target = profiles.find((p) => p.id === delU.dataset.deluser);
@@ -214,7 +221,7 @@
         "<td>" + deptSelect(u) + "</td>" +
         "<td style='font-size:.82rem'>" + SHELL.starsHtml(empScores(u.id)) + "</td>" +
         "<td><span class='muted'>" + esc(u.email || "") + "<br>" + esc(u.phone || "") + "</span></td>" +
-        "<td>" + ((u.email || "").toLowerCase() === OWNER_EMAIL ? "<span class='muted'>🔒 fondateur</span>" : (u.id === session.id ? "<span class='muted'>vous</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + u.id + "'>🗑</button>")) + "</td>" +
+        "<td>" + ((u.email || "").toLowerCase() === OWNER_EMAIL ? "" : (u.id === session.id ? "<span class='muted'>vous</span>" : "<button class='btn btn--sm' style='background:#fbe9e7;color:#c0392b' data-deluser='" + u.id + "'>🗑</button>")) + "</td>" +
         "</tr>").join("") +
       "</tbody></table></div>";
   }
@@ -313,6 +320,34 @@
       "<div style='margin-top:14px;white-space:pre-wrap'>" + esc(r.content) + "</div>");
   }
 
+  /* ----------  Historique des activités (fondateur uniquement)  ---------- */
+  function fmtDateTime(iso) {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+  function roleFr(role) { return ({ client: "Client", employe: "Employé", admin: "Direction" })[role] || (role || "—"); }
+  async function renderHistory() {
+    const log = await DB.getActivityLog();
+    if (!log.length) { $("historyWrap").innerHTML = "<div class='empty'><div class='ic'>📜</div><p>Aucune activité enregistrée pour l'instant. Les connexions, inscriptions et actions s'afficheront ici au fur et à mesure.</p></div>"; return; }
+    $("historyWrap").innerHTML =
+      "<div style='display:flex;justify-content:flex-end;margin-bottom:10px'><button class='btn btn--outline btn--sm' id='clearHist'>🗑 Vider l'historique</button></div>" +
+      "<div class='table-wrap'><table class='tbl'><thead><tr>" +
+      "<th>Date &amp; heure</th><th>Personne</th><th>Rôle</th><th>Action</th><th>Détail</th></tr></thead><tbody>" +
+      log.map((a) =>
+        "<tr>" +
+        "<td class='muted' style='white-space:nowrap'>" + fmtDateTime(a.createdAt) + "</td>" +
+        "<td class='strong'>" + esc(a.userName || a.userEmail || "—") + "<br><span class='muted' style='font-weight:400;font-size:.8rem'>" + esc(a.userEmail || "") + "</span></td>" +
+        "<td>" + esc(roleFr(a.role)) + "</td>" +
+        "<td>" + esc(a.action || "—") + "</td>" +
+        "<td class='muted'>" + esc(a.detail || "—") + "</td>" +
+        "</tr>").join("") +
+      "</tbody></table></div>";
+    const cb = document.getElementById("clearHist");
+    if (cb) cb.addEventListener("click", async function () {
+      if (confirm("Effacer tout l'historique ? (irréversible)")) { await DB.clearActivityLog(); renderHistory(); }
+    });
+  }
+
   /* ----------  Orchestration  ---------- */
   async function onViewChange(view) {
     if (view === "dash") { await loadAll(); refreshKpis(); renderDash(); }
@@ -327,6 +362,7 @@
       allRatings.forEach((x) => { (sc[x.employeeId] = sc[x.employeeId] || []).push(x.score); });
       document.getElementById("orgWrap").innerHTML = SHELL.orgChartHtml(staff(), sc);
     }
+    if (view === "history") renderHistory();
   }
 
   await loadAll();

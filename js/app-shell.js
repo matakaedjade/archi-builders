@@ -10,6 +10,7 @@ window.SHELL = (function () {
     mine: "Mes dossiers", projets: "Projets réalisés", contact: "Contact",
     colleagues: "Collègues", supervision: "Supervision", reports: "Rapports",
     evaluations: "Mes évaluations", org: "Organigramme", media: "Médias du site",
+    history: "Historique des activités",
     finance: "Finances", employees: "Équipe & comptes", clients: "Clients", settings: "Paramètres",
   };
 
@@ -301,7 +302,8 @@ window.SHELL = (function () {
     if (sec < 120) return null; // < 2 min → en ligne
     if (sec < 3600) return "il y a " + Math.floor(sec / 60) + " min";
     if (sec < 86400) return "il y a " + Math.floor(sec / 3600) + " h";
-    return "il y a " + Math.floor(sec / 86400) + " j";
+    if (sec < 7 * 86400) return "il y a " + Math.floor(sec / 86400) + " j";
+    return "le " + new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
   }
   function presenceHtml(p) {
     if (!p) return "";
@@ -309,7 +311,7 @@ window.SHELL = (function () {
     const r = relTime(p.lastSeen);
     if (p.lastSeen && r === null) return "<span style='color:#1e8a4c;font-size:.78rem;font-weight:600'>🟢 En ligne</span>";
     if (p.lastSeen) return "<span class='muted' style='font-size:.78rem'>Vu " + r + "</span>";
-    return "<span class='muted' style='font-size:.78rem'>—</span>";
+    return "<span class='muted' style='font-size:.78rem'>Jamais connecté</span>";
   }
   function initProfileMenu(session) {
     const av = document.getElementById("whoAvatar");

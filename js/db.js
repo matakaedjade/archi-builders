@@ -298,6 +298,33 @@ window.DB = (function () {
     return { ok: !error, error: error && error.message };
   }
 
+  /* ----------  Journal d'activité (lecture réservée au fondateur)  ---------- */
+  async function logActivity(action, detail) {
+    try {
+      const u = await currentUser();
+      if (!u) return;
+      const prof = await currentProfile();
+      await sb.from("activity_log").insert({
+        user_id: u.id,
+        user_name: prof ? prof.name : "",
+        user_email: prof ? prof.email : (u.email || ""),
+        role: prof ? prof.role : null,
+        action: action, detail: detail || null,
+      });
+    } catch (e) { /* silencieux */ }
+  }
+  async function getActivityLog() {
+    const { data, error } = await sb.from("activity_log").select("*")
+      .order("created_at", { ascending: false }).limit(500);
+    if (error) { console.error(error); return []; }
+    return data.map((a) => ({ id: a.id, userName: a.user_name, userEmail: a.user_email,
+      role: a.role, action: a.action, detail: a.detail, createdAt: a.created_at }));
+  }
+  async function clearActivityLog() {
+    const { error } = await sb.from("activity_log").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    return { ok: !error, error: error && error.message };
+  }
+
   return {
     currentUser, currentProfile, clearCache,
     getStaff, getEmployees, getClients, getAllProfiles, updateProfile, setRole, deleteProfile,
@@ -308,5 +335,6 @@ window.DB = (function () {
     getSiteMedia, uploadMedia, addSiteMedia, deleteSiteMedia,
     getTransactions, addTransaction, deleteTransaction,
     uploadAvatar, setAvatar, touchPresence, setPresence,
+    logActivity, getActivityLog, clearActivityLog,
   };
 })();

@@ -32,6 +32,7 @@ window.AUTH = (function () {
       await sb.auth.signOut(); DB.clearCache();
       return { ok: false, error: "Ce compte n'appartient pas à l'espace « " + roleLabel(role) + " ». Choisissez le bon onglet." };
     }
+    await DB.logActivity("Connexion", "Espace " + roleLabel(prof.role));
     return { ok: true, user: prof };
   }
 
@@ -47,6 +48,7 @@ window.AUTH = (function () {
     }
     DB.clearCache();
     const prof = await DB.currentProfile(true);
+    await DB.logActivity("Inscription", "Nouveau compte client");
     return { ok: true, user: { email: d.email, role: prof ? prof.role : "client" } };
   }
 

@@ -121,6 +121,7 @@
 
     btn.disabled = false; btn.textContent = oldLabel;
     if (!res.ok) return fail(res.error || "Une erreur est survenue. Réessayez.");
+    DB.logActivity("Nouvelle demande de conception", ($("btype") ? $("btype").value : "") + " · " + AB.formatMoney(q.amount));
 
     ok.innerHTML = "✅ Demande envoyée ! Estimation : <b>" + AB.formatMoney(q.amount) +
       "</b>. Nos architectes vous recontactent rapidement.";
