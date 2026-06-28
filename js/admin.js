@@ -204,10 +204,12 @@
     const list = staff();
     if (!list.length) { $("empTable").innerHTML = "<div class='empty'><div class='ic'>👷</div><p>Aucun membre d'équipe. Promouvez un client depuis l'onglet « Clients ».</p></div>"; return; }
     $("empTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
-      "<th>Nom</th><th>Rôle</th><th>Métier</th><th>Note globale</th><th>Contact</th><th></th></tr></thead><tbody>" +
+      "<th></th><th>Nom</th><th>Présence</th><th>Rôle</th><th>Métier</th><th>Note globale</th><th>Contact</th><th></th></tr></thead><tbody>" +
       list.map((u) =>
         "<tr>" +
+        "<td>" + SHELL.avatarHtml(u, 38) + "</td>" +
         "<td class='strong'>" + esc(u.name || "—") + "</td>" +
+        "<td>" + SHELL.presenceHtml(u) + "</td>" +
         "<td>" + roleSelect(u) + "</td>" +
         "<td>" + deptSelect(u) + "</td>" +
         "<td style='font-size:.82rem'>" + SHELL.starsHtml(empScores(u.id)) + "</td>" +

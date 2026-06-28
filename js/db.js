@@ -8,7 +8,9 @@ window.DB = (function () {
   /* ----------  Conversions base de données <-> application  ---------- */
   function rowToProfile(p) {
     return { id: p.id, name: p.name, email: p.email, phone: p.phone,
-             title: p.title, role: p.role, department: p.department, createdAt: p.created_at };
+             title: p.title, role: p.role, department: p.department,
+             photo: p.photo || null, lastSeen: p.last_seen || null, presenceOn: p.presence_on,
+             createdAt: p.created_at };
   }
 
   function rowToReport(r) {
@@ -259,6 +261,43 @@ window.DB = (function () {
     return { ok: !error, error: error && error.message };
   }
 
+  /* ----------  Photo de profil & présence en ligne  ---------- */
+  async function uploadAvatar(file) {
+    const u = await currentUser();
+    if (!u) throw new Error("non connecté");
+    const safe = file.name.replace(/[^\w.\-]/g, "_");
+    const path = u.id + "/avatar_" + Date.now() + "_" + safe;
+    const { error } = await sb.storage.from("avatars").upload(path, file, { upsert: true });
+    if (error) throw error;
+    const { data } = sb.storage.from("avatars").getPublicUrl(path);
+    return data.publicUrl;
+  }
+  async function setAvatar(url) {
+    const u = await currentUser();
+    if (!u) return { ok: false };
+    clearCache();
+    const { error } = await sb.from("profiles").update({ photo: url }).eq("id", u.id);
+    return { ok: !error, error: error && error.message };
+  }
+  // Met à jour "vu en ligne" (silencieux : ne bloque jamais l'app)
+  async function touchPresence() {
+    try {
+      const u = await currentUser();
+      if (!u) return;
+      const prof = await currentProfile();
+      const stamp = (prof && prof.presenceOn === false) ? null : new Date().toISOString();
+      await sb.from("profiles").update({ last_seen: stamp }).eq("id", u.id);
+    } catch (e) { /* silencieux */ }
+  }
+  async function setPresence(on) {
+    const u = await currentUser();
+    if (!u) return { ok: false };
+    clearCache();
+    const { error } = await sb.from("profiles")
+      .update({ presence_on: on, last_seen: on ? new Date().toISOString() : null }).eq("id", u.id);
+    return { ok: !error, error: error && error.message };
+  }
+
   return {
     currentUser, currentProfile, clearCache,
     getStaff, getEmployees, getClients, getAllProfiles, updateProfile, setRole, deleteProfile,
@@ -268,5 +307,6 @@ window.DB = (function () {
     getRatings, rateEmployee,
     getSiteMedia, uploadMedia, addSiteMedia, deleteSiteMedia,
     getTransactions, addTransaction, deleteTransaction,
+    uploadAvatar, setAvatar, touchPresence, setPresence,
   };
 })();

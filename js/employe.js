@@ -97,11 +97,13 @@
     const staff = await DB.getStaff();
     if (!staff.length) { $("colleaguesTable").innerHTML = "<div class='empty'><div class='ic'>👥</div><p>Aucun membre pour l'instant.</p></div>"; return; }
     $("colleaguesTable").innerHTML = "<div class='table-wrap'><table class='tbl'><thead><tr>" +
-      "<th>Nom</th><th>Métier</th><th>Téléphone</th><th>E-mail</th></tr></thead><tbody>" +
+      "<th></th><th>Nom</th><th>Métier</th><th>Présence</th><th>Téléphone</th><th>E-mail</th></tr></thead><tbody>" +
       staff.map((u) =>
         "<tr>" +
+        "<td>" + SHELL.avatarHtml(u, 38) + "</td>" +
         "<td class='strong'>" + AB.escapeHtml(u.name || "—") + (u.id === session.id ? " <span class='muted'>(vous)</span>" : "") + "</td>" +
         "<td>" + AB.escapeHtml(u.department ? AB.deptLabel(u.department) : (u.role === "admin" ? "Direction" : "Employé")) + "</td>" +
+        "<td>" + SHELL.presenceHtml(u) + "</td>" +
         "<td>" + (u.phone ? "<a href='tel:" + AB.escapeHtml((u.phone || "").replace(/\s/g, "")) + "'>" + AB.escapeHtml(u.phone) + "</a>" : "—") + "</td>" +
         "<td class='muted'>" + AB.escapeHtml(u.email || "") + "</td>" +
         "</tr>").join("") +

@@ -19,9 +19,15 @@ window.SHELL = (function () {
     const nameEl = document.getElementById("whoName");
     const avEl = document.getElementById("whoAvatar");
     if (nameEl) nameEl.textContent = s.name || s.email;
-    if (avEl) avEl.textContent = (s.name || s.email || "?").charAt(0).toUpperCase();
+    if (avEl) {
+      if (s.photo) { avEl.textContent = ""; avEl.style.backgroundImage = "url('" + s.photo + "')"; avEl.style.backgroundSize = "cover"; avEl.style.backgroundPosition = "center"; }
+      else avEl.textContent = (s.name || s.email || "?").charAt(0).toUpperCase();
+    }
     const logout = document.getElementById("logoutBtn");
     if (logout) logout.addEventListener("click", function () { AUTH.logout(); });
+    initProfileMenu(s);
+    DB.touchPresence();
+    setInterval(function () { DB.touchPresence(); }, 60000);
     return s;
   }
 
@@ -175,8 +181,10 @@ window.SHELL = (function () {
     const byDept = {};
     staff.forEach((p) => { const d = p.department || "autre"; (byDept[d] = byDept[d] || []).push(p); });
     const card = (p) =>
-      "<div class='org-card'><b>" + AB.escapeHtml(p.name || "—") + "</b>" +
+      "<div class='org-card'>" + avatarHtml(p, 48) +
+      "<b style='display:block;margin-top:6px'>" + AB.escapeHtml(p.name || "—") + "</b>" +
       "<span>" + AB.escapeHtml(p.department ? AB.deptLabel(p.department) : (p.role === "admin" ? "Direction" : "Employé")) + "</span>" +
+      "<div style='margin-top:2px'>" + presenceHtml(p) + "</div>" +
       (p.phone ? "<small>" + AB.escapeHtml(p.phone) + "</small>" : "") +
       compactStars(sc[p.id]) + "</div>";
 
@@ -276,6 +284,74 @@ window.SHELL = (function () {
       "<span class='muted'>(" + s5.toFixed(1) + "/5 · moy. " + avg10.toFixed(1) + "/10 sur " + scores.length + " projet(s))</span>";
   }
 
+  /* ----------  Photo de profil & présence en ligne  ---------- */
+  const OWNER_EMAIL = "matakaedjade@gmail.com";
+
+  function avatarHtml(p, size) {
+    size = size || 34;
+    const base = "width:" + size + "px;height:" + size + "px;border-radius:50%;flex:0 0 auto;vertical-align:middle;";
+    if (p && p.photo) return "<img src='" + AB.escapeHtml(p.photo) + "' alt='' style='" + base + "object-fit:cover'>";
+    const initial = ((p && (p.name || p.email)) || "?").charAt(0).toUpperCase();
+    return "<span style='" + base + "display:inline-grid;place-items:center;background:linear-gradient(135deg,var(--green-700),var(--green-600));color:var(--gold-400);font-family:var(--ff-head);font-weight:700;font-size:" + Math.round(size * 0.42) + "px'>" + AB.escapeHtml(initial) + "</span>";
+  }
+  function relTime(iso) {
+    if (!iso) return null;
+    const sec = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (sec < 0) return "à l'instant";
+    if (sec < 120) return null; // < 2 min → en ligne
+    if (sec < 3600) return "il y a " + Math.floor(sec / 60) + " min";
+    if (sec < 86400) return "il y a " + Math.floor(sec / 3600) + " h";
+    return "il y a " + Math.floor(sec / 86400) + " j";
+  }
+  function presenceHtml(p) {
+    if (!p) return "";
+    if (p.presenceOn === false) return "<span class='muted' style='font-size:.78rem'>⚪ Hors ligne</span>";
+    const r = relTime(p.lastSeen);
+    if (p.lastSeen && r === null) return "<span style='color:#1e8a4c;font-size:.78rem;font-weight:600'>🟢 En ligne</span>";
+    if (p.lastSeen) return "<span class='muted' style='font-size:.78rem'>Vu " + r + "</span>";
+    return "<span class='muted' style='font-size:.78rem'>—</span>";
+  }
+  function initProfileMenu(session) {
+    const av = document.getElementById("whoAvatar");
+    if (!av) return;
+    av.style.cursor = "pointer"; av.title = "Mon profil";
+    av.addEventListener("click", async function () {
+      const p = await DB.currentProfile(true);
+      if (!p) return;
+      const isOwner = (session.email || "").toLowerCase() === OWNER_EMAIL;
+      let html = "<div style='text-align:center'>" + avatarHtml(p, 92) +
+        "<h3 style='margin:12px 0 2px'>" + AB.escapeHtml(p.name || "") + "</h3>" +
+        "<span class='muted'>" + AB.escapeHtml(p.department ? AB.deptLabel(p.department) : (p.role === "admin" ? "Direction" : p.role === "employe" ? "Employé" : "Client")) + "</span></div>";
+      html += "<div class='field' style='margin-top:18px'><label>Changer ma photo de profil</label>" +
+        "<input class='input' type='file' id='avatarFile' accept='image/*'></div>" +
+        "<div class='alert alert--ok' id='avatarOk'></div><div class='alert alert--err' id='avatarErr'></div>";
+      if (isOwner) {
+        html += "<div style='margin-top:8px;padding:14px;background:var(--green-100);border-radius:10px'>" +
+          "<label style='display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600'>" +
+          "<input type='checkbox' id='presenceToggle'" + (p.presenceOn !== false ? " checked" : "") + " style='width:18px;height:18px'> " +
+          "Afficher ma présence en ligne</label>" +
+          "<div class='muted' style='font-size:.8rem;margin-top:6px'>🔒 Réglage réservé à votre compte fondateur. Décoché = vous apparaissez « Hors ligne » pour tout le monde.</div></div>";
+      }
+      openModal("Mon profil", html);
+      document.getElementById("avatarFile").addEventListener("change", async function (e) {
+        const f = e.target.files[0]; if (!f) return;
+        const ok = document.getElementById("avatarOk"), err = document.getElementById("avatarErr");
+        ok.classList.remove("show"); err.classList.remove("show");
+        try {
+          const url = await DB.uploadAvatar(f);
+          const res = await DB.setAvatar(url);
+          if (!res.ok) throw new Error(res.error || "");
+          ok.textContent = "✅ Photo mise à jour !"; ok.classList.add("show");
+          const a = document.getElementById("whoAvatar");
+          if (a) { a.textContent = ""; a.style.backgroundImage = "url('" + url + "')"; a.style.backgroundSize = "cover"; a.style.backgroundPosition = "center"; }
+        } catch (e2) { err.textContent = "Échec : le script base de données (étape 8) n'est peut-être pas encore exécuté."; err.classList.add("show"); }
+      });
+      const pt = document.getElementById("presenceToggle");
+      if (pt) pt.addEventListener("change", async function () { await DB.setPresence(pt.checked); });
+    });
+  }
+
   return { initSession, initNav, initMobile, initModal, openModal, closeModal,
-           badge, row, amountBlock, paymentBlock, filesHtml, briefRows, orgChartHtml, printRequest, starsHtml, VIEW_TITLES };
+           badge, row, amountBlock, paymentBlock, filesHtml, briefRows, orgChartHtml, printRequest, starsHtml,
+           avatarHtml, presenceHtml, initProfileMenu, VIEW_TITLES };
 })();
